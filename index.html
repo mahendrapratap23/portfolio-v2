@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mahendra Pratap, CS and AI Builder</title>
+  <meta name="description"
+    content="Portfolio of Mahendra Pratap, CS and AI undergraduate building autonomous agents, local-first systems, and full-stack products." />
+  <!-- Canonical self-reference -->
+  <link rel="canonical" href="https://mahendrapratap.dev/" />
+  <!-- Theme colour for mobile browsers -->
+  <meta name="theme-color" content="#fbfaf6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+
+<body>
+  <!-- ─── HERO ─────────────────────────────────────────────── -->
+  <section class="hero" id="sec-hero">
+    <h1 class="phys" aria-label="hello, i build things that think.">
+      hello, i build<br />things that think.
+    </h1>
+    <p class="hint">
+      push the letters. draw on the page. wait, something is alive.
+    </p>
+    <button id="g" aria-pressed="false">let go</button>
+  </section>
+
+  <!-- ─── ABOUT ─────────────────────────────────────────────── -->
+  <section id="sec-about">
+    <h2 class="phys" aria-label="about me">about me</h2>
+    <p class="mk">
+      I build things that think and things that feel.
+      I am a Computer Science undergraduate obsessed with AI agents,
+      local-first systems, and making software that surprises people.
+      I have shipped autonomous agents, travel planners, and habit dashboards.
+      I am not a <s>finished</s> thing either. Mark the words you like.
+    </p>
+  </section>
+
+  <!-- ─── THINGS I DO ──────────────────────────────────────── -->
+  <section id="sec-skills">
+    <h2 class="phys" aria-label="things i do">things i do</h2>
+    <p class="big phys"
+      aria-label="Python, TypeScript, React, Next.js, AI agents, LLM orchestration, local-first systems, full-stack engineering, open source.">
+      Python, TypeScript, React, Next.js, AI agents, LLM orchestration,
+      local-first systems, full-stack engineering, open source.
+    </p>
+    <div class="row">
+      <!-- Hand-drawn doodle face, eyes follow pen -->
+      <svg class="face" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+        <path d="M30 110c-4-45 30-72 72-68 46 4 70 38 62 80-8 38-48 56-84 46-34-8-46-30-50-58z" />
+        <path d="M45 70c20-30 60-38 110-14M55 62c10 8 30 4 40-8M105 50c14 10 30 6 44-2" />
+        <circle class="so" cx="78" cy="105" r="15" />
+        <circle class="pu" cx="78" cy="105" r="5" id="eye-l" />
+        <circle class="so" cx="126" cy="105" r="15" />
+        <circle class="pu" cx="126" cy="105" r="5" id="eye-r" />
+        <path d="M75 148h60M75 148v14h60v-14" />
+      </svg>
+      <p class="phys" aria-label="oh, you are an engineer? me too.">
+        oh, you are an engineer? me too.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── WORK ──────────────────────────────────────────────── -->
+  <section id="sec-work">
+    <h2 class="phys" aria-label="work">work</h2>
+
+    <div class="work-group">
+      <h3 class="work-label">experience</h3>
+      <div class="work-entry mk">
+        <span class="work-title">Industrial Technical Visit</span>
+        <span class="work-org">Enterprise IT and Software Infrastructure · Gujarat, India</span>
+        <span class="work-detail">Production architecture, DevOps and pipelines. Observed enterprise server
+          infrastructure and commercial software workflows.</span>
+      </div>
+    </div>
+
+    <div class="work-group">
+      <h3 class="work-label">education</h3>
+      <div class="work-entry mk">
+        <span class="work-title">Marwadi University</span>
+        <span class="work-detail">B.Tech in Computer Science and Engineering, AI and ML</span>
+        <span class="work-detail">two thousand twenty four to two thousand twenty eight · CGPA eight point four
+          two</span>
+      </div>
+      <div class="work-entry mk">
+        <span class="work-title">Class twelve</span>
+        <span class="work-detail">UP Board, Science and Mathematics · eighty-eight percent</span>
+      </div>
+      <div class="work-entry mk">
+        <span class="work-title">Class ten</span>
+        <span class="work-detail">UP Board · eighty-nine percent</span>
+      </div>
+    </div>
+
+    <div class="work-group">
+      <h3 class="work-label">certifications</h3>
+      <ul class="cert-list mk">
+        <li>Oracle Cloud Infrastructure AI Foundations</li>
+        <li>Cisco CCNA Cloud Networking</li>
+        <li>IBM Artificial Intelligence Fundamentals</li>
+        <li>Problem Solving Using Computational Thinking, University of Michigan</li>
+        <li>Data Analyst and Generative AI Credentials, LinkedIn Learning</li>
+        <li>Digital Electronics and Hardware Foundations, NPTEL</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── PROJECTS ─────────────────────────────────────────── -->
+  <section id="sec-projects">
+    <h2 class="phys" aria-label="projects">projects</h2>
+    <div class="project-grid" id="project-grid">
+      <!-- Populated by main.ts from projects.json -->
+    </div>
+  </section>
+
+  <!-- ─── SAY HELLO ─────────────────────────────────────────── -->
+  <section id="sec-hello">
+    <h2 class="phys" aria-label="say hello">say hello</h2>
+    <p>Write to me. Leave a blot on this page and I will find it.</p>
+    <div class="links-row">
+      <a href="mailto:mp498343@gmail.com" class="ink-link" aria-label="Send email to Mahendra Pratap">hey mail me</a>
+      <a href="https://github.com/mahendrapratap23" class="ink-link" target="_blank" rel="noopener noreferrer"
+        aria-label="Mahendra Pratap on GitHub (opens in new tab)">github</a>
+      <a href="https://www.linkedin.com/in/mahendra-pratap" class="ink-link" target="_blank" rel="noopener noreferrer"
+        aria-label="Mahendra Pratap on LinkedIn (opens in new tab)">linkedin</a>
+      <a href="/resume.pdf" class="ink-link" download="Mahendra_Pratap_Resume.pdf" target="_blank" rel="noopener noreferrer"
+        aria-label="Download Mahendra Pratap Resume (PDF)">download resume</a>
+    </div>
+  </section>
+
+  <!-- Canvas overlay — physics ink, creatures, pen -->
+  <canvas id="cv" aria-hidden="true" tabindex="-1"></canvas>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "MEMORA",
+    "description": "Open-source autonomous AI agent engine built from scratch. Six-layer architecture, provider-agnostic LLM interface.",
+    "language": "Python",
+    "stars": 1,
+    "url": "https://github.com/mahendrapratap23/MEMORA",
+    "pushed": "2026-09-02"
+  },
+  {
+    "name": "portfolio",
+    "description": "Minimal UI portfolio site with clean typography and intentional whitespace.",
+    "language": "CSS",
+    "stars": 1,
+    "url": "https://github.com/mahendrapratap23/portfolio01",
+    "pushed": "2026-10-01"
+  },
+  {
+    "name": "droidbridge",
+    "description": "Universal Android-to-macOS file transfer over USB.",
+    "language": "Rust",
+    "stars": 0,
+    "url": "https://github.com/mahendrapratap23/droidbridge",
+    "pushed": "2026-09-28"
+  },
+  {
+    "name": "trackly",
+    "description": "Privacy-first local habit and metric analytics suite with offline-first storage and rich chart dashboards.",
+    "language": "TypeScript",
+    "stars": 0,
+    "url": "https://github.com/mahendrapratap23/trackly",
+    "pushed": "2026-07-31"
+  },
+  {
+    "name": "ghumo-ai",
+    "description": "AI-powered travel planner with interactive maps, budget charts, and itinerary export.",
+    "language": "TypeScript",
+    "stars": 0,
+    "url": "https://github.com/mahendrapratap23/ghumo-ai",
+    "pushed": "2026-07-18"
+  },
+  {
+    "name": "college-practical-codes",
+    "description": "Machine learning, DAA and AI practical code notebooks from coursework.",
+    "language": "Jupyter Notebook",
+    "stars": 0,
+    "url": "https://github.com/mahendrapratap23/college-practical-codes",
+    "pushed": "2026-10-08"
+  }
+]

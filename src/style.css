@@ -1,0 +1,510 @@
+/* ===================================================================
+   style.css — Design system for Mahendra Pratap portfolio
+   Evolves the template palette/tokens exactly. No third-party CSS.
+   =================================================================== */
+
+/* ── FONTS ────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: Hand;
+  src: url('/fonts/Myfont-Tight.ttf') format('truetype');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Caveat fallback — only activates for glyphs Hand does not cover.
+   unicode-range covers: hyphen, digits, @, /, (, ), &, %, + and
+   common punctuation missing from Hand. */
+@font-face {
+  font-family: Fallback;
+  src: url('/fonts/Caveat-Regular.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  unicode-range:
+    U+002B,        /* + */
+    U+002D,        /* - hyphen */
+    U+002F,        /* / */
+    U+0025,        /* % */
+    U+0026,        /* & */
+    U+0028-0029,   /* ( ) */
+    U+0030-0039,   /* 0-9 digits */
+    U+0040,        /* @ */
+    U+005B-005D,   /* [ ] */
+    U+007B-007D,   /* { } */
+    U+00B7,        /* · middle dot */
+    U+2013-2014;   /* – — em/en dash */
+}
+
+/* ── CSS TOKENS (exact from template, extended) ───────────────────── */
+:root {
+  /* Palette */
+  --paper: #fbfaf6;
+  --ink: #161616;
+  --blue: #2b3de0;
+
+  /* Spacing */
+  --section-pad-v: 9vh;
+  --section-pad-h: 7vw;
+
+  /* Safe area */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  box-sizing: border-box;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* Dark mode via system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #131313;
+    --ink: #efece4;
+    --blue: #8c99ff;
+  }
+}
+
+/* Dark mode forced via data attribute */
+:root[data-theme='dark'] {
+  --paper: #131313;
+  --ink: #efece4;
+  --blue: #8c99ff;
+}
+
+/* Light mode forced */
+:root[data-theme='light'] {
+  --paper: #fbfaf6;
+  --ink: #161616;
+  --blue: #2b3de0;
+}
+
+/* ── RESET & BASE ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  scroll-padding-top: var(--safe-top);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: clamp(22px, 2.6vw, 32px) / 1.3 Hand, Fallback, 'Comic Sans MS', cursive;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: 'kern', 'liga', 'calt';
+  word-spacing: 0.12em;
+}
+
+/* Hide custom cursor only for fine-pointer (mouse) devices.
+   Touch devices keep the default cursor. */
+@media (pointer: fine) {
+  body:not(.rm),
+  body:not(.rm) button,
+  body:not(.rm) a {
+    cursor: none;
+  }
+}
+
+/* ── LAYOUT ───────────────────────────────────────────────────────── */
+section {
+  position: relative;
+  min-height: 100svh;
+  padding: var(--section-pad-v) var(--section-pad-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3vh;
+}
+
+/* Hero blueprint outline — thin ink frame */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 3vh 3vw;
+  border: 1px solid var(--ink);
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+/* ── TYPOGRAPHY ───────────────────────────────────────────────────── */
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+h1 {
+  font-size: clamp(46px, 11.5vw, 170px);
+}
+
+h2 {
+  font-size: clamp(40px, 7vw, 100px);
+}
+
+p {
+  margin: 0;
+  max-width: 38ch;
+}
+
+s {
+  text-decoration-thickness: 0.16em;
+}
+
+/* Blue hint line (hero sub-text) */
+.hint {
+  color: var(--blue);
+}
+
+/* Large physics skill words */
+.big {
+  font-size: clamp(34px, 6vw, 84px);
+  line-height: 1.2;
+  max-width: 20ch;
+}
+
+/* ── PHYSICS LETTER CLASSES (from template, unchanged) ───────────── */
+
+/* Word wrapper: keeps letters together so the word is atomic during layout */
+.w {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Single letter body */
+.l {
+  display: inline-block;
+  margin-inline: -0.02em;
+  will-change: transform;
+}
+
+/* Dashed "near" outline when displaced more than 6 px */
+.l.near {
+  outline: 1px dashed var(--blue);
+  outline-offset: 3px;
+}
+
+/* ── MARKER HIGHLIGHT (from template, exact values) ──────────────── */
+.m {
+  background: linear-gradient(var(--blue), var(--blue)) no-repeat 0 100% / 0 100%;
+  transition:
+    background-size 0.25s,
+    color 0.25s;
+  padding: 0 0.08em;
+}
+
+.m.on {
+  background-size: 100% 100%;
+  color: var(--paper);
+}
+
+/* ── BUTTON (from template, exact border-radius) ─────────────────── */
+button {
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 1.5px solid var(--ink);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  padding: 0.1em 0.8em;
+  align-self: flex-start;
+}
+
+button:hover,
+button:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* ── FACE SVG (from template) ────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4vw;
+  flex-wrap: wrap;
+}
+
+.face {
+  width: min(240px, 50vw);
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.face .so {
+  fill: var(--paper);
+}
+
+.face .pu {
+  fill: var(--ink);
+  stroke: none;
+}
+
+/* ── CANVAS OVERLAY ──────────────────────────────────────────────── */
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── WORK SECTION ────────────────────────────────────────────────── */
+.work-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  border-left: 1.5px solid var(--ink);
+  padding-left: 2ch;
+  opacity: 0.95;
+}
+
+.work-group + .work-group {
+  margin-top: 2vh;
+}
+
+.work-label {
+  font-size: clamp(18px, 2.0vw, 24px);
+  color: var(--blue);
+  letter-spacing: 0.06em;
+  margin: 0 0 0.4em;
+  font-weight: 400;
+}
+
+.work-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  padding: 0.4em 0;
+}
+
+.work-entry + .work-entry {
+  border-top: 1px dashed var(--ink);
+  opacity: 0.75;
+}
+
+.work-title {
+  font-size: clamp(20px, 2.3vw, 29px);
+  line-height: 1.2;
+}
+
+.work-org {
+  font-size: clamp(18px, 1.9vw, 23px);
+  color: var(--blue);
+  opacity: 0.92;
+}
+
+.work-detail {
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.35;
+  opacity: 0.92;
+  max-width: 52ch;
+}
+
+.cert-list {
+  margin: 0;
+  padding-left: 1.6ch;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.cert-list li::before {
+  content: '·  ';
+  color: var(--blue);
+}
+
+.cert-list li {
+  font-size: clamp(19px, 2.1vw, 25px);
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
+/* ── PROJECTS SECTION ────────────────────────────────────────────── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 3vw;
+}
+
+.project-card {
+  /* Hand-drawn border (same asymmetric radius as button) */
+  border: 1.5px solid var(--ink);
+  border-radius: 8px 255px 8px 128px / 128px 8px 255px 8px;
+  padding: 1.2em 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.project-card:hover {
+  background: color-mix(in srgb, var(--blue) 6%, transparent);
+}
+
+.project-card:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.project-name {
+  font-size: clamp(20px, 2.3vw, 28px);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.project-desc {
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.35;
+  opacity: 0.92;
+  max-width: 38ch;
+  margin: 0;
+  flex: 1;
+}
+
+.project-footer {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  margin-top: 0.4em;
+}
+
+.project-lang {
+  font-size: clamp(15px, 1.5vw, 18px);
+  color: var(--blue);
+  opacity: 0.9;
+}
+
+.project-link {
+  margin-left: auto;
+  font-size: clamp(16px, 1.6vw, 20px);
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--blue);
+  padding-bottom: 1px;
+}
+
+.project-link:hover,
+.project-link:focus-visible {
+  color: var(--blue);
+  border-bottom-style: solid;
+}
+
+.project-link:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Stretch the link to cover the whole card for mobile tap */
+.project-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* ── HELLO / LINKS ───────────────────────────────────────────────── */
+.links-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  align-items: flex-start;
+}
+
+.ink-link {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px dashed var(--blue);
+  padding-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.ink-link:hover {
+  color: var(--blue);
+  border-bottom-style: solid;
+}
+
+.ink-link:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .m {
+    transition: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  canvas {
+    display: none;
+  }
+
+  /* Reveal letters as normal text — no transforms */
+  .l {
+    display: inline;
+    will-change: auto;
+  }
+
+  .w {
+    display: inline;
+  }
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  section {
+    padding: 8vh 6vw;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 4vw;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .work-group {
+    padding-left: 4vw;
+  }
+}
+
+/* Wide screens: cap the content column width */
+@media (min-width: 1600px) {
+  section {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-left: max(7vw, calc((100vw - 1400px) / 2));
+    padding-right: max(7vw, calc((100vw - 1400px) / 2));
+  }
+}
