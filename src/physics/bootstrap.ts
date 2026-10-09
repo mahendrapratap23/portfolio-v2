@@ -184,18 +184,6 @@ if (window.visualViewport) {
 
 addEventListener('scroll', () => sheet.wake(), { passive: true });
 
-matchMedia('(prefers-color-scheme:dark)').addEventListener('change', readColors);
-
-if (typeof MutationObserver !== 'undefined') {
-  const themeObserver = new MutationObserver(() => {
-    readColors();
-  });
-  themeObserver.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-theme'],
-  });
-}
-
 // ── Gravity & Tilt Mode ────────────────────────────────────────────
 
 let gravityOn = false;

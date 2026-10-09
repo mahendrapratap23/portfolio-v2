@@ -11,7 +11,7 @@ async function getWsUrl(port = 9444) {
     try {
       const res = await fetch(`http://127.0.0.1:${port}/json`);
       const list = await res.json();
-      const pageTarget = list.find((t) => t.type === 'page' && (t.url.includes('5173') || t.url.includes('4173'))) || list.find((t) => t.type === 'page');
+      const pageTarget = list.find((t) => t.type === 'page' && (t.url.includes('4173') || t.url.includes('5173'))) || list.find((t) => t.type === 'page');
       if (pageTarget && pageTarget.webSocketDebuggerUrl) {
         return pageTarget.webSocketDebuggerUrl;
       }
@@ -82,21 +82,10 @@ class CDPClient {
     fs.writeFileSync(outputPath, Buffer.from(res.data, 'base64'));
     console.log(`Saved screenshot: ${outputPath}`);
   }
-
-  async screenshotClip(outputPath, clip) {
-    const res = await this.send('Page.captureScreenshot', {
-      format: 'png',
-      clip,
-      captureBeyondViewport: false,
-    });
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, Buffer.from(res.data, 'base64'));
-    console.log(`Saved screenshot: ${outputPath}`);
-  }
 }
 
 async function run() {
-  console.log('=== VERIFYING REAL WHITE DOT-GRID NOTEBOOK PAGE ===');
+  console.log('=== VERIFYING COMPLETE REMOVAL OF DARK THEME ===');
 
   const chromeProc = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', [
     '--headless=new',
@@ -129,11 +118,18 @@ async function run() {
     await client.send('Page.navigate', { url: 'http://127.0.0.1:4173' });
     await wait(2000);
 
-    // Measure values in light mode
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'light')`);
+    // 1. Emulate dark mode + forced-colors: none
+    await client.send('Emulation.setEmulatedMedia', {
+      media: 'screen',
+      features: [
+        { name: 'prefers-color-scheme', value: 'dark' },
+        { name: 'forced-colors', value: 'none' },
+      ],
+    });
     await wait(500);
 
-    const lightStyles = await client.evaluate(`
+    // Measure styles under emulated dark mode
+    const emulatedDarkStyles = await client.evaluate(`
       (() => {
         const cs = getComputedStyle(document.documentElement);
         const bodyCs = getComputedStyle(document.body);
@@ -143,9 +139,8 @@ async function run() {
         const faceFill = faceSo ? getComputedStyle(faceSo).fill : null;
         const btn = document.querySelector('button');
         const btnBorder = btn ? getComputedStyle(btn).borderColor : null;
-        const mEl = document.querySelector('.m');
-        const markerColor = mEl ? getComputedStyle(mEl).color : null;
         return {
+          colorScheme: cs.getPropertyValue('color-scheme').trim(),
           paper: cs.getPropertyValue('--paper').trim(),
           ink: cs.getPropertyValue('--ink').trim(),
           blue: cs.getPropertyValue('--blue').trim(),
@@ -155,37 +150,23 @@ async function run() {
           bodyBg: bodyCs.backgroundColor,
           faceFill: faceFill,
           btnBorder: btnBorder,
-          markerColor: markerColor,
         };
       })()
     `);
-    console.log('Light Mode Styles:', lightStyles);
+    console.log('Styles under EMULATED DARK MODE (prefers-color-scheme: dark):', emulatedDarkStyles);
 
-    // Measure values in dark mode
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'dark')`);
-    await wait(500);
-
-    const darkStyles = await client.evaluate(`
+    // Check meta color-scheme and theme-color
+    const metas = await client.evaluate(`
       (() => {
-        const cs = getComputedStyle(document.documentElement);
-        const bodyCs = getComputedStyle(document.body);
-        const crease = document.querySelector('.crease-layer');
-        const creaseCs = crease ? getComputedStyle(crease) : null;
-        const faceSo = document.querySelector('.face .so');
-        const faceFill = faceSo ? getComputedStyle(faceSo).fill : null;
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
         return {
-          paper: cs.getPropertyValue('--paper').trim(),
-          ink: cs.getPropertyValue('--ink').trim(),
-          blue: cs.getPropertyValue('--blue').trim(),
-          dot: cs.getPropertyValue('--dot').trim(),
-          crease: cs.getPropertyValue('--crease').trim(),
-          creaseOpacity: creaseCs ? creaseCs.opacity : null,
-          bodyBg: bodyCs.backgroundColor,
-          faceFill: faceFill,
+          themeColor: themeColorMeta ? themeColorMeta.getAttribute('content') : null,
+          colorScheme: colorSchemeMeta ? colorSchemeMeta.getAttribute('content') : null,
         };
       })()
     `);
-    console.log('Dark Mode Styles:', darkStyles);
+    console.log('Meta tags:', metas);
 
     // Contrast calculations (WCAG relative luminance)
     function hexToRgb(hex) {
@@ -210,22 +191,22 @@ async function run() {
     }
 
     const whiteRgb = [255, 255, 255];
-    const inkRgb = hexToRgb(lightStyles.ink); // #1b2340
-    const blueRgb = hexToRgb(lightStyles.blue); // #2b3de0
-    const dotRgb = hexToRgb(lightStyles.dot); // #c9cedb
+    const inkRgb = hexToRgb(emulatedDarkStyles.ink); // #1b2340
+    const blueRgb = hexToRgb(emulatedDarkStyles.blue); // #2b3de0
+    const dotRgb = hexToRgb(emulatedDarkStyles.dot); // #c9cedb
 
     const bodyContrast = contrast(inkRgb, whiteRgb);
     const hintContrast = contrast(blueRgb, whiteRgb);
     const markerContrast = contrast(whiteRgb, blueRgb);
     const dotContrast = contrast(dotRgb, whiteRgb);
 
-    console.log(`\n--- CONTRAST RATIOS (Light Theme) ---`);
-    console.log(`Body text (ink ${lightStyles.ink} on white): ${bodyContrast.toFixed(2)}:1 (>= 4.5:1: ${bodyContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
-    console.log(`Hint text (blue ${lightStyles.blue} on white): ${hintContrast.toFixed(2)}:1 (>= 4.5:1: ${hintContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
-    console.log(`Marker highlight text (white on blue ${lightStyles.blue}): ${markerContrast.toFixed(2)}:1 (>= 4.5:1: ${markerContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
-    console.log(`Dot grid (dot ${lightStyles.dot} on white): ${dotContrast.toFixed(2)}:1 (Subtle quiet background)`);
+    console.log(`\n--- CONTRAST RATIOS ---`);
+    console.log(`Body text (ink ${emulatedDarkStyles.ink} on white): ${bodyContrast.toFixed(2)}:1 (>= 4.5:1: ${bodyContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
+    console.log(`Hint text (blue ${emulatedDarkStyles.blue} on white): ${hintContrast.toFixed(2)}:1 (>= 4.5:1: ${hintContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
+    console.log(`Marker highlight text (white on blue ${emulatedDarkStyles.blue}): ${markerContrast.toFixed(2)}:1 (>= 4.5:1: ${markerContrast >= 4.5 ? 'PASS' : 'FAIL'})`);
+    console.log(`Dot grid (dot ${emulatedDarkStyles.dot} on white): ${dotContrast.toFixed(2)}:1 (Subtle quiet background)`);
 
-    // Viewport 1: 390px (Mobile)
+    // Viewport 1: 390px (Mobile under emulated dark mode)
     await client.send('Emulation.setDeviceMetricsOverride', {
       width: 390,
       height: 844,
@@ -233,18 +214,9 @@ async function run() {
       mobile: true,
     });
     await wait(500);
+    await client.screenshot('./screenshots/screenshot-390-dark-emulated.png');
 
-    // 390px Light
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'light')`);
-    await wait(500);
-    await client.screenshot('./screenshots/screenshot-390-light.png');
-
-    // 390px Dark
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'dark')`);
-    await wait(500);
-    await client.screenshot('./screenshots/screenshot-390-dark.png');
-
-    // Viewport 2: 1440px (Desktop)
+    // Viewport 2: 1440px (Desktop under emulated dark mode)
     await client.send('Emulation.setDeviceMetricsOverride', {
       width: 1440,
       height: 900,
@@ -252,38 +224,17 @@ async function run() {
       mobile: false,
     });
     await wait(500);
-
-    // 1440px Light
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'light')`);
-    await wait(500);
-    await client.screenshot('./screenshots/screenshot-1440-light.png');
-
-    // 1440px Dark
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'dark')`);
-    await wait(500);
-    await client.screenshot('./screenshots/screenshot-1440-dark.png');
-
-    // Close-up of the dots in light mode
-    await client.evaluate(`document.documentElement.setAttribute('data-theme', 'light')`);
-    await wait(500);
-    await client.screenshotClip('./screenshots/screenshot-dots-closeup.png', {
-      x: 500,
-      y: 200,
-      width: 300,
-      height: 300,
-      scale: 1,
-    });
+    await client.screenshot('./screenshots/screenshot-1440-dark-emulated.png');
 
     console.log('\nConsole Errors:', consoleErrors);
     console.log('Verification Complete.');
 
     return {
-      lightStyles,
-      darkStyles,
+      emulatedDarkStyles,
+      metas,
       bodyContrast,
       hintContrast,
       markerContrast,
-      dotContrast,
       consoleErrors,
     };
   } finally {

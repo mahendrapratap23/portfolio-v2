@@ -38,6 +38,8 @@
 
 /* ── CSS TOKENS (exact from template, extended) ───────────────────── */
 :root {
+  color-scheme: light;
+
   /* Palette */
   --paper: #ffffff;
   --ink: #1b2340;
@@ -65,35 +67,6 @@
   :root {
     --grid: 34px;
   }
-}
-
-/* Dark mode via system preference */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --paper: #131313;
-    --ink: #efece4;
-    --blue: #8c99ff;
-    --dot: color-mix(in srgb, var(--ink) 18%, transparent);
-    --crease: 0.18;
-  }
-}
-
-/* Dark mode forced via data attribute */
-:root[data-theme='dark'] {
-  --paper: #131313;
-  --ink: #efece4;
-  --blue: #8c99ff;
-  --dot: color-mix(in srgb, var(--ink) 18%, transparent);
-  --crease: 0.18;
-}
-
-/* Light mode forced */
-:root[data-theme='light'] {
-  --paper: #ffffff;
-  --ink: #1b2340;
-  --blue: #2b3de0;
-  --dot: #c9cedb;
-  --crease: 0;
 }
 
 /* ── RESET & BASE ─────────────────────────────────────────────────── */

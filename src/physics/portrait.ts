@@ -430,7 +430,6 @@ export function initPortrait(): void {
   if (!canvas || !photoImg) return;
 
   readPortraitColors();
-  matchMedia('(prefers-color-scheme:dark)').addEventListener('change', readPortraitColors);
 
   // Toggle button handler
   if (modeBtn) {
