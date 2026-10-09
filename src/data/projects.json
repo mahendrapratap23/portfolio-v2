@@ -1,23 +1,31 @@
 [
   {
-    "name": "MEMORA",
-    "description": "Open-source autonomous AI agent engine built from scratch. Six-layer architecture, provider-agnostic LLM interface.",
-    "language": "Python",
-    "stars": 1,
-    "url": "https://github.com/mahendrapratap23/MEMORA",
-    "pushed": "2026-09-02"
-  },
-  {
-    "name": "portfolio",
-    "description": "Minimal UI portfolio site with clean typography and intentional whitespace.",
+    "name": "portfolio01",
+    "description": "MINIMAL UI PORtFOLIO",
     "language": "CSS",
     "stars": 1,
     "url": "https://github.com/mahendrapratap23/portfolio01",
     "pushed": "2026-10-01"
   },
   {
+    "name": "MEMORA",
+    "description": "MEMORA is an open-source personal AI assistant and autonomous agent engineered from scratch",
+    "language": "Python",
+    "stars": 1,
+    "url": "https://github.com/mahendrapratap23/MEMORA",
+    "pushed": "2026-09-02"
+  },
+  {
+    "name": "college-practical-codes",
+    "description": "machine learning ,DAA ,AI codes practicals",
+    "language": "Jupyter Notebook",
+    "stars": 0,
+    "url": "https://github.com/mahendrapratap23/college-practical-codes",
+    "pushed": "2026-10-08"
+  },
+  {
     "name": "droidbridge",
-    "description": "Universal Android-to-macOS file transfer over USB.",
+    "description": "Universal Android-to-macOS file transfer over USB",
     "language": "Rust",
     "stars": 0,
     "url": "https://github.com/mahendrapratap23/droidbridge",
@@ -25,7 +33,7 @@
   },
   {
     "name": "trackly",
-    "description": "Privacy-first local habit and metric analytics suite with offline-first storage and rich chart dashboards.",
+    "description": "an idea that track anything what you want ,graph visuals",
     "language": "TypeScript",
     "stars": 0,
     "url": "https://github.com/mahendrapratap23/trackly",
@@ -33,18 +41,10 @@
   },
   {
     "name": "ghumo-ai",
-    "description": "AI-powered travel planner with interactive maps, budget charts, and itinerary export.",
+    "description": "travel tracker ,maps ,checklist,budgets,most everything for travel planning",
     "language": "TypeScript",
     "stars": 0,
     "url": "https://github.com/mahendrapratap23/ghumo-ai",
     "pushed": "2026-07-18"
-  },
-  {
-    "name": "college-practical-codes",
-    "description": "Machine learning, DAA and AI practical code notebooks from coursework.",
-    "language": "Jupyter Notebook",
-    "stars": 0,
-    "url": "https://github.com/mahendrapratap23/college-practical-codes",
-    "pushed": "2026-10-08"
   }
 ]
