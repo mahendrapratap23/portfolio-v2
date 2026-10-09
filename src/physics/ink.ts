@@ -13,6 +13,8 @@
 import { type PenState } from './physics.js';
 import { born } from './creatures.js';
 
+export const ENABLE_CLICK_BLOT = false;
+
 // ── Types ──────────────────────────────────────────────────────────
 
 export interface Segment {
@@ -20,6 +22,7 @@ export interface Segment {
   c: number; d: number; // to x,y
   w: number;            // line width
   t: number;            // timestamp ms
+  isTouch?: boolean;
 }
 
 export interface Drip {
@@ -55,6 +58,7 @@ const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 // ── Blot spawning ──────────────────────────────────────────────────
 
 export function spawnBlot(x: number, y: number, now: number, W: number, H: number): void {
+  if (!ENABLE_CLICK_BLOT) return;
   blots.push({
     x,
     y,
@@ -71,17 +75,21 @@ export function stepInk(pen: PenState, now: number, H: number): void {
   const ox = pen.ox;
   const oy = pen.oy;
 
-  // Pen trail
-  if (pen.seen && pen.sp > 0.3) {
+  // On touch: do NOT draw line on scroll or initial tap.
+  // Only draw if horizontal gesture has been explicitly activated!
+  const canDrawTouch = pen.isTouch && pen.isDown && pen.touchStrokeActive;
+  const canDrawMouse = !pen.isTouch && pen.seen;
+
+  if ((canDrawTouch || canDrawMouse) && pen.sp > 0.3) {
     // Smooth line width toward target (thinner trail on touch)
-    const targetW = pen.isTouch ? Math.max(0.8, 3.5 - pen.sp * 0.2) : Math.max(1.2, 7 - pen.sp * 0.35);
+    const targetW = pen.isTouch ? Math.max(0.8, 3.2 - pen.sp * 0.2) : Math.max(1.2, 7 - pen.sp * 0.35);
     pen.w += (targetW - pen.w) * 0.3;
-    segs.push({ a: ox, b: oy, c: pen.x, d: pen.y, w: pen.w, t: now });
+    segs.push({ a: ox, b: oy, c: pen.x, d: pen.y, w: pen.w, t: now, isTouch: !!pen.isTouch });
     if (segs.length > maxSegs) segs.shift();
     pen.idle = 0;
     pen.bead = 0;
-  } else if (pen.seen) {
-    // Growing ink bead when idle
+  } else if (!pen.isTouch && pen.seen) {
+    // Growing ink bead when idle (mouse only)
     pen.idle++;
     if (pen.idle > 20) pen.bead = Math.min(8, (pen.idle - 20) * 0.04);
     // Drip when bead reaches 7
@@ -106,6 +114,7 @@ export function stepInk(pen: PenState, now: number, H: number): void {
       d: drip.y,
       w: Math.max(0.8, drip.w),
       t: now,
+      isTouch: false,
     });
     if (drip.w < 1 || drip.y > H) drips.splice(i, 1);
   }
@@ -129,12 +138,21 @@ export function drawInk(
   c.strokeStyle = INK;
   c.fillStyle = INK;
 
-  // Expire old segments
-  while (segs.length && now - segs[0]!.t > 5000) segs.shift();
+  // Expire old segments:
+  // Touch strokes fade in 2000 ms (2s), mouse strokes in 5000 ms (5s)
+  while (segs.length) {
+    const s = segs[0]!;
+    const maxLife = s.isTouch ? 2000 : 5000;
+    if (now - s.t > maxLife) segs.shift();
+    else break;
+  }
 
   // Draw segments with fade
   for (const s of segs) {
-    c.globalAlpha = 1 - (now - s.t) / 5000;
+    const maxLife = s.isTouch ? 2000 : 5000;
+    const age = now - s.t;
+    if (age > maxLife) continue;
+    c.globalAlpha = Math.max(0, 1 - age / maxLife);
     c.lineWidth = s.w;
     c.beginPath();
     c.moveTo(s.a, s.b);
@@ -162,16 +180,38 @@ export function drawInk(
 
   c.globalAlpha = 1;
 
-  // Ink bead
-  if (pen.seen && pen.bead > 0) {
+  // Ink bead (mouse only or active touch down)
+  if (!pen.isTouch && pen.seen && pen.bead > 0) {
     c.beginPath();
     c.arc(pen.x, pen.y + pen.bead * 0.4, pen.bead, 0, Math.PI * 2);
     c.fill();
   }
 
-  // Pen cursor (fountain pen nib) — hidden on touch devices
-  if (pen.seen && !pen.isTouch) {
+  // Pen cursor (fountain pen nib)
+  // On mouse: draw whenever seen.
+  // On touch: draw ONLY while finger is down; fade out in 150 ms on release, never leave parked.
+  let penAlpha = 0;
+  if (!pen.isTouch) {
+    penAlpha = pen.seen ? 1 : 0;
+  } else {
+    if (pen.isDown) {
+      penAlpha = 1;
+    } else if (pen.touchFadeStartTime && pen.touchFadeStartTime > 0) {
+      const elapsed = now - pen.touchFadeStartTime;
+      if (elapsed >= 150) {
+        penAlpha = 0;
+        pen.touchFadeStartTime = 0;
+      } else {
+        penAlpha = 1 - elapsed / 150;
+      }
+    } else {
+      penAlpha = 0;
+    }
+  }
+
+  if (penAlpha > 0.01) {
     c.save();
+    c.globalAlpha = penAlpha;
     c.translate(pen.x, pen.y);
     c.rotate(0.5);
     c.fillStyle = PAP;

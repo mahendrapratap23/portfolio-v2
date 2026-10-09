@@ -8,7 +8,7 @@
 
 import { type PenState, type LetterBody, FIXED_DT, GRAVITY, penStep } from './physics.js';
 import { letters, initLetters, measureLetters, stepLetters, kickLetters, shockwaveLetters } from './letters.js';
-import { segs, drips, blots, spawnBlot, stepInk, drawInk, reduceInkQuality } from './ink.js';
+import { segs, drips, blots, spawnBlot, stepInk, drawInk, reduceInkQuality, ENABLE_CLICK_BLOT } from './ink.js';
 import { cells, initCreatures, stepCreatures, drawCreatures, reduceCreaturesQuality } from './creatures.js';
 import {
   initPortrait,
@@ -86,6 +86,12 @@ const pen: PenState = {
   bead: 0,
   seen: false,
   isTouch: isCoarse,
+  isDown: false,
+  touchFadeStartTime: 0,
+  touchStrokeActive: false,
+  touchStartX: 0,
+  touchStartY: 0,
+  touchStrokeSegStartIndex: 0,
 };
 
 // ── Pointer Event listeners (Passive, touch-optimized) ─────────────
@@ -93,19 +99,27 @@ const pen: PenState = {
 addEventListener('pointerdown', (e) => {
   const isTouch = e.pointerType === 'touch' || isCoarse;
   pen.isTouch = isTouch;
+  pen.isDown = true;
+  pen.touchFadeStartTime = 0;
   pen.seen = true;
 
   if (isTouch) {
     pen.x = pen.ox = pen.tx = e.clientX;
     pen.y = pen.oy = pen.ty = e.clientY;
     pen.sp = 0;
+    pen.touchStartX = e.clientX;
+    pen.touchStartY = e.clientY;
+    pen.touchStrokeActive = false;
+    pen.touchStrokeSegStartIndex = segs.length;
   } else {
     pen.tx = e.clientX;
     pen.ty = e.clientY;
   }
 
   const now = performance.now();
-  spawnBlot(e.clientX, e.clientY, now, W, H);
+  if (ENABLE_CLICK_BLOT) {
+    spawnBlot(e.clientX, e.clientY, now, W, H);
+  }
   shockwaveLetters(e.clientX + scrollX, e.clientY + scrollY, 6, 220);
   sheet.applyImpulse(e.clientX, e.clientY, 4.5);
 
@@ -130,6 +144,7 @@ addEventListener('pointermove', (e) => {
   }
 
   if (isTouch) {
+    pen.isDown = true;
     pen.ox = pen.x;
     pen.oy = pen.y;
     pen.tx = pen.x = e.clientX;
@@ -137,6 +152,21 @@ addEventListener('pointermove', (e) => {
     pen.vx = pen.x - pen.ox;
     pen.vy = pen.y - pen.oy;
     pen.sp = Math.hypot(pen.vx, pen.vy);
+
+    // Stop scroll line on touch:
+    // Only activate drawing if finger moved >= 10px AND angle within 35 degrees of horizontal.
+    // If movement is predominantly vertical (dy > dx * tan(35 deg) ~ 0.7002), it is a scroll: draw nothing.
+    if (!pen.touchStrokeActive && pen.touchStartX !== undefined && pen.touchStartY !== undefined) {
+      const dx = Math.abs(e.clientX - pen.touchStartX);
+      const dy = Math.abs(e.clientY - pen.touchStartY);
+      const dist = Math.hypot(dx, dy);
+      if (dist >= 10) {
+        if (dx > 0 && dy <= dx * 0.7002) {
+          pen.touchStrokeActive = true;
+          pen.touchStrokeSegStartIndex = segs.length;
+        }
+      }
+    }
   } else {
     pen.tx = e.clientX;
     pen.ty = e.clientY;
@@ -144,21 +174,37 @@ addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 addEventListener('pointerup', (e) => {
+  pen.isDown = false;
   if (e.pointerType === 'touch' || isCoarse) {
     pen.sp = 0;
     pen.vx = 0;
     pen.vy = 0;
+    pen.touchFadeStartTime = performance.now();
+    pen.touchStrokeActive = false;
   }
 }, { passive: true });
 
 addEventListener('pointercancel', (e) => {
-  // If finger drag turns into a scroll or is cancelled, end cleanly:
-  // no stuck letters, no stuck pen
+  pen.isDown = false;
   if (e.pointerType === 'touch' || isCoarse) {
     pen.seen = false;
     pen.sp = 0;
     pen.vx = 0;
     pen.vy = 0;
+    pen.touchFadeStartTime = performance.now();
+    // Immediately remove segments of current stroke so no line is left behind on scroll
+    if (pen.touchStrokeSegStartIndex !== undefined && segs.length >= pen.touchStrokeSegStartIndex) {
+      segs.splice(pen.touchStrokeSegStartIndex, segs.length - pen.touchStrokeSegStartIndex);
+    }
+    pen.touchStrokeActive = false;
+  }
+}, { passive: true });
+
+addEventListener('pointerleave', (e) => {
+  if (e.pointerType === 'touch' || isCoarse) {
+    pen.isDown = false;
+    pen.touchFadeStartTime = performance.now();
+    pen.touchStrokeActive = false;
   }
 }, { passive: true });
 
@@ -182,6 +228,7 @@ function handleResize(): void {
       sizeCanvasHeightOnly();
       sheet.resizeHeightOnly(innerHeight);
       skillsEcosystem.resize();
+      measureLetters();
     }
     timelineWriter.setupPath();
   }, 200);

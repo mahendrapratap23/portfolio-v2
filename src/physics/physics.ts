@@ -65,8 +65,19 @@ export interface PenState {
   bead: number;
   /** Whether pen has ever been seen (first move) */
   seen: boolean;
-  /** Whether pointer is coarse touch (no spring lag, hide pen graphic) */
+  /** Whether pointer is coarse touch (no spring lag) */
   isTouch?: boolean;
+  /** Whether pointer/finger is currently pressed down */
+  isDown?: boolean;
+  /** Timestamp when touch ended for 150ms fade out */
+  touchFadeStartTime?: number;
+  /** Whether touch movement unlocked horizontal drawing */
+  touchStrokeActive?: boolean;
+  /** Starting touch coordinates to detect horizontal angle */
+  touchStartX?: number;
+  touchStartY?: number;
+  /** Index in segs array when current touch stroke started */
+  touchStrokeSegStartIndex?: number;
 }
 
 // ── Constants (spec-exact) ─────────────────────────────────────────

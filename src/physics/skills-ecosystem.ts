@@ -173,7 +173,7 @@ export class SkillsEcosystem {
     const rect = this.container.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.width = Math.max(rect.width, 300);
-    this.height = Math.max(rect.height, 280);
+    this.height = Math.max(rect.height || 240, 200);
 
     this.canvas.width = this.width * dpr;
     this.canvas.height = this.height * dpr;
@@ -215,8 +215,8 @@ export class SkillsEcosystem {
     if (h2) {
       const r = h2.getBoundingClientRect();
       const localTop = r.top - containerRect.top;
-      // Only include if overlapping container space
-      if (localTop + r.height > -20 && localTop < this.height + 20) {
+      // Include if overlapping or close to container space
+      if (localTop + r.height > -30 && localTop < this.height + 30) {
         this.textObstacles.push({
           x: r.left - containerRect.left - 10,
           y: localTop - 10,
@@ -229,7 +229,7 @@ export class SkillsEcosystem {
     if (note) {
       const r = note.getBoundingClientRect();
       const localTop = r.top - containerRect.top;
-      if (localTop + r.height > -20 && localTop < this.height + 20) {
+      if (localTop + r.height > -30 && localTop < this.height + 30) {
         this.textObstacles.push({
           x: r.left - containerRect.left - 10,
           y: localTop - 10,
@@ -457,6 +457,30 @@ export class SkillsEcosystem {
           }
         }
 
+        // Steer around other creatures' skill text to keep words completely readable
+        for (const other of this.creatures) {
+          if (other === c) continue;
+          const textW = Math.max(65, other.name.length * 10);
+          const textOnRight = other.x + other.r + 7 + textW <= W - 10;
+          const tLeft = textOnRight ? other.x + other.r + 2 : other.x - other.r - 8 - textW;
+          const tRight = textOnRight ? other.x + other.r + 8 + textW : other.x - other.r - 2;
+          const tTop = other.y - 14;
+          const tBottom = other.y + 14;
+
+          const closeX = Math.max(tLeft, Math.min(tRight, c.x));
+          const closeY = Math.max(tTop, Math.min(tBottom, c.y));
+          const cdx = c.x - closeX;
+          const cdy = c.y - closeY;
+          const cdist = Math.hypot(cdx, cdy) || 1;
+          const clearance = c.r + 10;
+
+          if (cdist < clearance) {
+            const steer = (clearance - cdist) * 0.06;
+            sx += (cdx / cdist) * steer;
+            sy += (cdy / cdist) * steer;
+          }
+        }
+
         // Momentum retention on release, converging smoothly to wander speed
         c.vx += (sx - c.vx) * 0.08;
         c.vy += (sy - c.vy) * 0.08;
@@ -604,7 +628,7 @@ export class SkillsEcosystem {
         c.fill();
       }
 
-      // Handwritten skill name
+      // Handwritten skill name with crisp background halo
       c.font = '20px Hand, Fallback, "Comic Sans MS", cursive';
       c.textBaseline = 'middle';
       const textX = cr.x + cr.r + 7;
@@ -612,13 +636,20 @@ export class SkillsEcosystem {
 
       // Ensure text stays visible within canvas width
       const metrics = c.measureText(cr.name);
+      c.save();
+      c.strokeStyle = this.paperColor;
+      c.lineWidth = 4;
+      c.lineJoin = 'round';
       if (textX + metrics.width > W - 10) {
         c.textAlign = 'right';
+        c.strokeText(cr.name, cr.x - cr.r - 7, textY);
         c.fillText(cr.name, cr.x - cr.r - 7, textY);
       } else {
         c.textAlign = 'left';
+        c.strokeText(cr.name, textX, textY);
         c.fillText(cr.name, textX, textY);
       }
+      c.restore();
 
       c.restore();
     }
