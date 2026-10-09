@@ -15,7 +15,7 @@ if (RM) document.body.classList.add('rm');
 
 // ── Project grid ──────────────────────────────────────────────────
 const grid = document.getElementById('project-grid');
-if (grid) {
+if (grid && grid.children.length === 0) {
   for (const proj of projects) {
     const card = document.createElement('article');
     card.className = 'project-card';
@@ -78,35 +78,103 @@ document.querySelectorAll<Element>('.mk').forEach((root) => {
   walk(root, wrapWords);
 });
 
-// Touch/mouse: highlight word on pointerover
-document.addEventListener('pointerover', (e) => {
-  const target = e.target as Element;
-  const m = target.closest?.('.m') as HTMLElement | null;
-  if (m) m.classList.add('on');
-});
+// Touch/mouse: highlight word on pointerover (passive)
+document.addEventListener(
+  'pointerover',
+  (e) => {
+    const target = e.target as Element;
+    const m = target.closest?.('.m') as HTMLElement | null;
+    if (m) m.classList.add('on');
+  },
+  { passive: true }
+);
 
-// ── Gravity button (Phase 2 will wire physics — stub here) ────────
+// ── Gravity button ────────────────────────────────────────────────
 const btn = document.getElementById('g') as HTMLButtonElement;
 let gravityOn = false;
-btn.addEventListener('click', () => {
-  gravityOn = !gravityOn;
-  btn.textContent = gravityOn ? 'pull back' : 'let go';
-  btn.setAttribute('aria-pressed', String(gravityOn));
-  // Physics module will read gravityOn via exported ref in Phase 2
-  dispatchEvent(new CustomEvent('gravity', { detail: gravityOn }));
-});
-btn.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    btn.click();
-  }
-});
+if (btn) {
+  btn.addEventListener('click', () => {
+    gravityOn = !gravityOn;
+    btn.textContent = gravityOn ? 'pull back' : 'let go';
+    btn.setAttribute('aria-pressed', String(gravityOn));
+    dispatchEvent(new CustomEvent('gravity', { detail: gravityOn }));
+  });
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      btn.click();
+    }
+  });
+}
 
-// ── Boot physics (Phase 2+) ───────────────────────────────────────
+// ── Tilt button (Optional) ────────────────────────────────────────
+const tiltBtn = document.getElementById('btn-tilt') as HTMLButtonElement | null;
+let tiltActive = false;
+
+if (tiltBtn && typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+  tiltBtn.style.display = 'inline-flex';
+
+  const handleOrientation = (e: DeviceOrientationEvent) => {
+    if (!tiltActive) return;
+    const gamma = e.gamma ?? 0;
+    const beta = e.beta ?? 45;
+    const gx = Math.sin((gamma * Math.PI) / 180) * 0.7;
+    const gy = Math.sin((beta * Math.PI) / 180) * 0.7;
+    dispatchEvent(
+      new CustomEvent('tiltchange', {
+        detail: {
+          active: true,
+          gx: Math.abs(gx) < 0.05 ? 0 : gx,
+          gy: Math.abs(gy) < 0.05 ? 0.7 : gy,
+        },
+      })
+    );
+  };
+
+  tiltBtn.addEventListener('click', async () => {
+    if (tiltActive) {
+      tiltActive = false;
+      tiltBtn.setAttribute('aria-pressed', 'false');
+      tiltBtn.classList.remove('active');
+      window.removeEventListener('deviceorientation', handleOrientation);
+      dispatchEvent(
+        new CustomEvent('tiltchange', { detail: { active: false, gx: 0, gy: 0.7 } })
+      );
+      return;
+    }
+
+    // iOS 13+ permission gating inside click handler
+    if (
+      typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> })
+        .requestPermission === 'function'
+    ) {
+      try {
+        const permission = await (
+          DeviceOrientationEvent as unknown as { requestPermission: () => Promise<string> }
+        ).requestPermission();
+        if (permission !== 'granted') {
+          tiltBtn.style.display = 'none';
+          return;
+        }
+      } catch {
+        tiltBtn.style.display = 'none';
+        return;
+      }
+    }
+
+    tiltActive = true;
+    tiltBtn.setAttribute('aria-pressed', 'true');
+    tiltBtn.classList.add('active');
+    window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+    dispatchEvent(
+      new CustomEvent('tiltchange', { detail: { active: true, gx: 0, gy: 0.7 } })
+    );
+  });
+}
+
+// ── Boot physics ───────────────────────────────────────────────────
 if (!RM) {
-  // Dynamically import physics modules (added in Phase 2)
-  // This import is a no-op until Phase 2 files exist.
   import('./physics/bootstrap').catch(() => {
-    // Physics not yet wired; static layout still works.
+    // Static layout still works gracefully if physics fails
   });
 }

@@ -18,6 +18,8 @@ import {
   repelStep,
   isAtRest,
   NEAR_THRESHOLD,
+  GRAVITY,
+  shockwaveStep,
 } from './physics.js';
 
 // ── Letter DOM splitting ───────────────────────────────────────────
@@ -138,8 +140,17 @@ export function measureLetters(): void {
  * Advance all letters by one fixed timestep.
  * @param pen  current pen state (document coords = pen.x + scrollX)
  * @param gravity whether gravity mode is active
+ * @param gx optional directional gravity x from device tilt
+ * @param gy optional directional gravity y from device tilt
  */
-export function stepLetters(pen: PenState, gravity: boolean): void {
+export function stepLetters(
+  pen: PenState,
+  gravity: boolean,
+  gx = 0,
+  gy = GRAVITY,
+  sheetSampleFn?: (vx: number, vy: number) => number,
+  sheetAwake = false
+): void {
   const px = pen.x + scrollX;
   const py = pen.y + scrollY;
   const top = scrollY - 400;
@@ -153,26 +164,32 @@ export function stepLetters(pen: PenState, gravity: boolean): void {
 
     const repelled = pen.seen && repelStep(body, px, py, pen.sp);
 
-    if (!repelled && !gravity && isAtRest(body)) {
+    // Sample sheet wave height at letter's rest position (viewport coords)
+    const lvx = body.cx - scrollX;
+    const lvy = body.cy - scrollY;
+    const inVp = lvx >= -20 && lvx <= innerWidth + 20 && lvy >= -20 && lvy <= innerHeight + 20;
+    const waveH = sheetAwake && sheetSampleFn && inVp ? sheetSampleFn(lvx, lvy) : 0;
+
+    if (!repelled && !gravity && isAtRest(body) && Math.abs(waveH) < 0.01) {
       if (body.nr || body.on) {
         body.e.style.transform = '';
         body.e.classList.remove('near');
         body.nr = 0;
         body.on = 0;
+        body.prevX = undefined;
+        body.prevY = undefined;
+        body.prevR = undefined;
       }
       continue;
     }
 
     // Step physics
     if (gravity) {
-      gravityStep(body);
+      gravityStep(body, gx, gy);
     } else {
       springStep(body);
       rotStep(body);
     }
-
-    // Floor in gravity mode
-    // (gravityStep already handles floor, nothing extra needed here)
 
     // Near outline
     const displaced =
@@ -183,7 +200,36 @@ export function stepLetters(pen: PenState, gravity: boolean): void {
     }
 
     body.on = 1;
-    body.e.style.transform = `translate(${body.x.toFixed(1)}px,${body.y.toFixed(1)}px) rotate(${body.r.toFixed(3)}rad)`;
+
+    // Phase 3: Letters ride waves (h * 8px displacement, h * 0.02 rad rotation)
+    const renderY = body.y + waveH * 8;
+    const renderR = body.r + waveH * 0.02;
+
+    // Write transforms ONLY when values actually moved
+    const dx = Math.abs(body.x - (body.prevX ?? -9999));
+    const dy = Math.abs(renderY - (body.prevY ?? -9999));
+    const dr = Math.abs(renderR - (body.prevR ?? -9999));
+
+    if (dx > 0.05 || dy > 0.05 || dr > 0.002) {
+      body.prevX = body.x;
+      body.prevY = renderY;
+      body.prevR = renderR;
+      body.e.style.transform = `translate(${body.x.toFixed(1)}px,${renderY.toFixed(1)}px) rotate(${renderR.toFixed(3)}rad)`;
+    }
+  }
+}
+
+/**
+ * Apply radial shockwave impulse from a tap/click to nearby letters.
+ */
+export function shockwaveLetters(
+  sx: number,
+  sy: number,
+  strength = 6,
+  falloff = 220
+): void {
+  for (const body of letters) {
+    shockwaveStep(body, sx, sy, strength, falloff);
   }
 }
 

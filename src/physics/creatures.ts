@@ -25,15 +25,22 @@ export interface Creature {
 
 export const cells: Creature[] = [];
 
+let maxCreatures = 22;
+
+export function reduceCreaturesQuality(): void {
+  maxCreatures = 11;
+  while (cells.length > maxCreatures) cells.pop();
+}
+
 const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 
 /**
- * Spawn one creature at (x, y). Respects the 22-creature cap.
+ * Spawn one creature at (x, y). Respects creature cap.
  */
 export function born(x: number, y: number, W: number, H: number): void {
   void H; // used by caller but not needed here (kept for API symmetry)
   void W;
-  if (cells.length < 22) {
+  if (cells.length < maxCreatures) {
     cells.push({
       x,
       y,

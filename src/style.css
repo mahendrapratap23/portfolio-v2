@@ -39,9 +39,12 @@
 /* ── CSS TOKENS (exact from template, extended) ───────────────────── */
 :root {
   /* Palette */
-  --paper: #fbfaf6;
-  --ink: #161616;
+  --paper: #ffffff;
+  --ink: #1b2340;
   --blue: #2b3de0;
+  --dot: #c9cedb;
+  --crease: 0;
+  --grid: 28px;
 
   /* Spacing */
   --section-pad-v: 9vh;
@@ -58,12 +61,20 @@
   padding-bottom: var(--safe-bottom);
 }
 
+@media (pointer: coarse) {
+  :root {
+    --grid: 34px;
+  }
+}
+
 /* Dark mode via system preference */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --paper: #131313;
     --ink: #efece4;
     --blue: #8c99ff;
+    --dot: color-mix(in srgb, var(--ink) 18%, transparent);
+    --crease: 0.18;
   }
 }
 
@@ -72,13 +83,17 @@
   --paper: #131313;
   --ink: #efece4;
   --blue: #8c99ff;
+  --dot: color-mix(in srgb, var(--ink) 18%, transparent);
+  --crease: 0.18;
 }
 
 /* Light mode forced */
 :root[data-theme='light'] {
-  --paper: #fbfaf6;
-  --ink: #161616;
+  --paper: #ffffff;
+  --ink: #1b2340;
   --blue: #2b3de0;
+  --dot: #c9cedb;
+  --crease: 0;
 }
 
 /* ── RESET & BASE ─────────────────────────────────────────────────── */
@@ -89,11 +104,13 @@
 }
 
 html {
+  touch-action: pan-y;
   scroll-padding-top: var(--safe-top);
   scroll-behavior: smooth;
 }
 
 body {
+  touch-action: pan-y;
   margin: 0;
   background: var(--paper);
   color: var(--ink);
@@ -118,9 +135,15 @@ body {
 }
 
 /* ── LAYOUT ───────────────────────────────────────────────────────── */
+main {
+  position: relative;
+  z-index: 1;
+}
+
 section {
   position: relative;
-  min-height: 100svh;
+  z-index: 1;
+  min-height: 100dvh;
   padding: var(--section-pad-v) var(--section-pad-h);
   display: flex;
   flex-direction: column;
@@ -136,6 +159,76 @@ section {
   border: 1px solid var(--ink);
   opacity: 0.22;
   pointer-events: none;
+}
+
+/* ── HERO & PORTRAIT ─────────────────────────────────────────────── */
+.hero-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5vw;
+  width: 100%;
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2vh;
+  flex: 1;
+}
+
+.hero-name {
+  font-size: clamp(24px, 3.2vw, 42px);
+  color: var(--blue);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.portrait-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.portrait-viewport {
+  position: relative;
+  width: min(340px, 78vw);
+  aspect-ratio: 1292 / 1217;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portrait-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  display: block;
+}
+
+.portrait-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+.portrait-photo.visible {
+  opacity: 1;
+}
+
+.btn-portrait-mode {
+  align-self: center;
 }
 
 /* ── TYPOGRAPHY ───────────────────────────────────────────────────── */
@@ -163,6 +256,7 @@ p {
 
 s {
   text-decoration-thickness: 0.16em;
+  text-decoration-color: var(--ink);
 }
 
 /* Blue hint line (hero sub-text) */
@@ -183,6 +277,9 @@ s {
 .w {
   display: inline-block;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Single letter body */
@@ -190,6 +287,9 @@ s {
   display: inline-block;
   margin-inline: -0.02em;
   will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Dashed "near" outline when displaced more than 6 px */
@@ -219,12 +319,29 @@ button {
   background: none;
   border: 1.5px solid var(--ink);
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  padding: 0.1em 0.8em;
+  padding: 0.2em 0.9em;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   align-self: flex-start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
 }
 
-button:hover,
-button:focus-visible {
+@media (hover: hover) {
+  button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+}
+
+button:active,
+button.active,
+button[aria-pressed='true'] {
   background: var(--ink);
   color: var(--paper);
 }
@@ -232,6 +349,13 @@ button:focus-visible {
 button:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2ch;
+  flex-wrap: wrap;
 }
 
 /* ── FACE SVG (from template) ────────────────────────────────────── */
@@ -260,14 +384,57 @@ button:focus-visible {
   stroke: none;
 }
 
-/* ── CANVAS OVERLAY ──────────────────────────────────────────────── */
-canvas {
+/* ── BACKGROUND MEMBRANE & TEXTURE ────────────────────────────────── */
+.crease-layer {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 0;
+  opacity: var(--crease, 0);
+  background:
+    linear-gradient(135deg, transparent 49.6%, color-mix(in srgb, var(--ink) 6%, transparent) 50%, transparent 50.4%) 0 0 / 100vw 100vh,
+    linear-gradient(45deg, transparent 49.7%, color-mix(in srgb, var(--paper) 30%, transparent) 50%, transparent 50.3%) 0 0 / 100vw 100vh;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.2px);
+  background-size: var(--grid) var(--grid);
+  background-position: 0 0;
+}
+
+body.sheet-active .bg-grid {
+  background-image: none;
+}
+
+/* ── CANVAS LAYERS ───────────────────────────────────────────────── */
+#cv {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  touch-action: pan-y;
   z-index: 5;
+}
+
+#sheet-cv {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  touch-action: pan-y;
+  z-index: 0;
+  display: block;
 }
 
 /* ── WORK SECTION ────────────────────────────────────────────────── */
@@ -361,8 +528,10 @@ canvas {
   position: relative;
 }
 
-.project-card:hover {
-  background: color-mix(in srgb, var(--blue) 6%, transparent);
+@media (hover: hover) {
+  .project-card:hover {
+    background: color-mix(in srgb, var(--blue) 6%, transparent);
+  }
 }
 
 .project-card:focus-within {
@@ -404,13 +573,20 @@ canvas {
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1px dashed var(--blue);
-  padding-bottom: 1px;
+  padding: 6px 12px;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.project-link:hover,
-.project-link:focus-visible {
-  color: var(--blue);
-  border-bottom-style: solid;
+@media (hover: hover) {
+  .project-link:hover {
+    color: var(--blue);
+    border-bottom-style: solid;
+  }
 }
 
 .project-link:focus-visible {
@@ -438,13 +614,19 @@ canvas {
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1.5px dashed var(--blue);
-  padding-bottom: 2px;
+  padding: 6px 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.ink-link:hover {
-  color: var(--blue);
-  border-bottom-style: solid;
+@media (hover: hover) {
+  .ink-link:hover {
+    color: var(--blue);
+    border-bottom-style: solid;
+  }
 }
 
 .ink-link:focus-visible {
@@ -463,7 +645,26 @@ canvas {
     scroll-behavior: auto;
   }
 
-  canvas {
+  canvas,
+  #cv,
+  #sheet-cv {
+    display: none !important;
+  }
+
+  body.sheet-active .bg-grid {
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px) !important;
+  }
+
+  .portrait-canvas {
+    display: none;
+  }
+
+  .portrait-photo {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .btn-portrait-mode {
     display: none;
   }
 
@@ -479,6 +680,18 @@ canvas {
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4vh;
+  }
+
+  .portrait-container {
+    align-self: center;
+  }
+}
+
 @media (max-width: 600px) {
   section {
     padding: 8vh 6vw;

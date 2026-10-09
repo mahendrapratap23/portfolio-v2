@@ -36,6 +36,10 @@ export interface LetterBody {
   on: number;
   /** Whether "near" outline is showing */
   nr: number;
+  /** Previous frame values to avoid redundant DOM writes */
+  prevX?: number;
+  prevY?: number;
+  prevR?: number;
 }
 
 /** Pen state: a mass on a spring that follows the pointer. */
@@ -61,6 +65,8 @@ export interface PenState {
   bead: number;
   /** Whether pen has ever been seen (first move) */
   seen: boolean;
+  /** Whether pointer is coarse touch (no spring lag, hide pen graphic) */
+  isTouch?: boolean;
 }
 
 // ── Constants (spec-exact) ─────────────────────────────────────────
@@ -109,9 +115,11 @@ export function rotStep(body: LetterBody): void {
 
 /**
  * Apply gravity + floor collision to a letter body (gravity mode).
+ * Supports directional gravity vector (gx, gy) from device tilt.
  */
-export function gravityStep(body: LetterBody): void {
-  body.vy += GRAVITY;
+export function gravityStep(body: LetterBody, gx = 0, gy = GRAVITY): void {
+  body.vy += gy;
+  body.vx += gx;
   body.vx *= FRICTION;
   body.vr *= ROT_DAMP_G;
   body.x += body.vx;
@@ -125,6 +133,31 @@ export function gravityStep(body: LetterBody): void {
     body.vr *= ROT_DAMP_G;
     if (Math.abs(body.vy) < 1) body.vy = 0;
   }
+}
+
+/**
+ * Apply radial shockwave impulse from a tap or click.
+ */
+export function shockwaveStep(
+  body: LetterBody,
+  sx: number,
+  sy: number,
+  strength = 6,
+  falloff = 220
+): boolean {
+  const bx = body.cx + body.x;
+  const by = body.cy + body.y;
+  const dx = bx - sx;
+  const dy = by - sy;
+  const d = Math.hypot(dx, dy) || 1;
+  if (d < falloff) {
+    const f = (1 - d / falloff) * strength;
+    body.vx += (dx / d) * f;
+    body.vy += (dy / d) * f;
+    body.vr += (dx / d) * f * 0.01;
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -173,13 +206,25 @@ export function isAtRest(body: LetterBody): boolean {
 
 /**
  * Advance pen by one fixed timestep.
+ * On touch (coarse pointer), follows target directly with no spring lag.
  */
 export function penStep(pen: PenState): void {
   pen.ox = pen.x;
   pen.oy = pen.y;
-  pen.vx = (pen.vx + (pen.tx - pen.x) * PEN_SPRING) * PEN_DAMP;
-  pen.vy = (pen.vy + (pen.ty - pen.y) * PEN_SPRING) * PEN_DAMP;
-  pen.x += pen.vx;
-  pen.y += pen.vy;
-  pen.sp = Math.hypot(pen.vx, pen.vy);
+
+  if (pen.isTouch) {
+    // Touch: follows finger directly with zero spring lag
+    pen.x = pen.tx;
+    pen.y = pen.ty;
+    pen.vx = pen.x - pen.ox;
+    pen.vy = pen.y - pen.oy;
+    pen.sp = Math.hypot(pen.vx, pen.vy);
+  } else {
+    // Mouse / fine pointer: spring filter
+    pen.vx = (pen.vx + (pen.tx - pen.x) * PEN_SPRING) * PEN_DAMP;
+    pen.vy = (pen.vy + (pen.ty - pen.y) * PEN_SPRING) * PEN_DAMP;
+    pen.x += pen.vx;
+    pen.y += pen.vy;
+    pen.sp = Math.hypot(pen.vx, pen.vy);
+  }
 }

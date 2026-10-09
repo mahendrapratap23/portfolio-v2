@@ -50,10 +50,10 @@ export const WORK = {
   experience: [
     {
       title: "Industrial Technical Visit",
-      org: "Enterprise IT and Software Infrastructure",
-      location: "Gujarat, India",
+      org: "Bhaskaracharya National Institute for Space Applications and Geo-informatics (BISAG-N)",
+      location: "Gandhinagar, Gujarat",
       detail:
-        "Production architecture, DevOps and pipelines. Observed enterprise server infrastructure and commercial software workflows.",
+        "Space Technology, Geographic Information Systems (GIS), Remote Sensing and Geospatial AI. Explored satellite data pipelines and machine learning models for spatial analysis.",
     },
   ],
   education: [

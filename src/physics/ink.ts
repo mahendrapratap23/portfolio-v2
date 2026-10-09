@@ -43,6 +43,13 @@ export const segs: Segment[] = [];
 export const drips: Drip[] = [];
 export const blots: Blot[] = [];
 
+let maxSegs = 1200;
+
+export function reduceInkQuality(): void {
+  maxSegs = 600;
+  while (segs.length > maxSegs) segs.shift();
+}
+
 const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 
 // ── Blot spawning ──────────────────────────────────────────────────
@@ -66,11 +73,11 @@ export function stepInk(pen: PenState, now: number, H: number): void {
 
   // Pen trail
   if (pen.seen && pen.sp > 0.3) {
-    // Smooth line width toward target
-    const targetW = Math.max(1.2, 7 - pen.sp * 0.35);
+    // Smooth line width toward target (thinner trail on touch)
+    const targetW = pen.isTouch ? Math.max(0.8, 3.5 - pen.sp * 0.2) : Math.max(1.2, 7 - pen.sp * 0.35);
     pen.w += (targetW - pen.w) * 0.3;
     segs.push({ a: ox, b: oy, c: pen.x, d: pen.y, w: pen.w, t: now });
-    if (segs.length > 1200) segs.shift();
+    if (segs.length > maxSegs) segs.shift();
     pen.idle = 0;
     pen.bead = 0;
   } else if (pen.seen) {
@@ -162,8 +169,8 @@ export function drawInk(
     c.fill();
   }
 
-  // Pen cursor (fountain pen nib)
-  if (pen.seen) {
+  // Pen cursor (fountain pen nib) — hidden on touch devices
+  if (pen.seen && !pen.isTouch) {
     c.save();
     c.translate(pen.x, pen.y);
     c.rotate(0.5);
