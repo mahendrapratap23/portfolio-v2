@@ -64,7 +64,6 @@ sizeCanvas();
 sheet.init('sheet-cv');
 skillsEcosystem.isDrivenExternally = true;
 skillsEcosystem.init('skills-ecosystem-container', 'skills-ecosystem-canvas');
-projectsPendulumManager.init('project-grid');
 timelineWriter.init('sec-work');
 readColors();
 

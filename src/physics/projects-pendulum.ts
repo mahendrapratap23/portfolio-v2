@@ -35,16 +35,26 @@ export class ProjectsPendulumManager {
   public isTabVisible = typeof document !== 'undefined' ? !document.hidden : true;
   private observer: IntersectionObserver | null = null;
   private gridEl: HTMLElement | null = null;
+  private isInitialized = false;
+
+  // Pointer gesture tracking: distinguish tap (< 8px, < 300ms) from drag/brush
+  private pointerStartX = 0;
+  private pointerStartY = 0;
+  private pointerStartTime = 0;
+  private isDragging = false;
 
   public init(gridId = 'project-grid'): void {
     if (typeof document === 'undefined') return;
     this.gridEl = document.getElementById(gridId);
     if (!this.gridEl) return;
 
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     this.bindCards();
     this.bindEvents();
 
-    if ('IntersectionObserver' in window) {
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
       const sec = this.gridEl.closest('section') || this.gridEl;
       this.observer = new IntersectionObserver((entries) => {
         for (const entry of entries) {
@@ -68,15 +78,16 @@ export class ProjectsPendulumManager {
     this.cards = Array.from(wrappers).map((wrapper, index) => {
       const card = wrapper.querySelector<HTMLElement>('.project-card')!;
       const restR = REST_TILTS[index % REST_TILTS.length];
+      const initialPressed = card.getAttribute('aria-pressed') === 'true';
       const pCard: PendulumCard = {
-        id: card.dataset.repo || `project-${index}`,
+        id: card.dataset?.repo || `project-${index}`,
         wrapperEl: wrapper,
         cardEl: card,
         r: restR,
         vr: 0,
         restR,
         isSleeping: true,
-        isFlipped: false,
+        isFlipped: initialPressed,
         rect: null,
       };
 
@@ -98,11 +109,34 @@ export class ProjectsPendulumManager {
   private bindEvents(): void {
     if (!this.gridEl) return;
 
+    // Track pointerdown to distinguish tap vs drag
+    this.gridEl.addEventListener('pointerdown', (e) => {
+      this.pointerStartX = e.clientX;
+      this.pointerStartY = e.clientY;
+      this.pointerStartTime = performance.now();
+      this.isDragging = false;
+    }, { passive: true });
+
+    this.gridEl.addEventListener('pointermove', (e) => {
+      if (this.pointerStartTime > 0) {
+        const dist = Math.hypot(e.clientX - this.pointerStartX, e.clientY - this.pointerStartY);
+        if (dist >= 8) {
+          this.isDragging = true;
+        }
+      }
+    }, { passive: true });
+
     // Flip on click/tap
     this.gridEl.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      // If clicking the GitHub link directly, let it open normally
+      // If clicking the GitHub link directly, let it open normally without flipping back
       if (target.closest('.project-link')) {
+        return;
+      }
+
+      // If user dragged/swiped rather than tapped, cancel flip
+      if (this.isDragging) {
+        this.isDragging = false;
         return;
       }
 
@@ -122,7 +156,7 @@ export class ProjectsPendulumManager {
       if (cardEl) {
         if (e.key === 'Enter' || e.key === ' ') {
           // Do not hijack if target is the link itself
-          if (target.classList.contains('project-link')) return;
+          if (target.classList?.contains('project-link') || target.closest?.('.project-link')) return;
           e.preventDefault();
           const found = this.cards.find((c) => c.cardEl === cardEl);
           if (found) this.toggleFlip(found);
@@ -131,48 +165,64 @@ export class ProjectsPendulumManager {
     });
 
     // Escape closes any flipped card
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        let flippedAny = false;
-        for (const card of this.cards) {
-          if (card.isFlipped) {
-            this.setFlip(card, false);
-            flippedAny = true;
+    if (typeof document !== 'undefined') {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          for (const card of this.cards) {
+            if (this.isFlipped(card)) {
+              this.setFlip(card, false);
+            }
           }
         }
-        if (flippedAny) {
-          // Return focus to first closed card if needed
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        this.isTabVisible = !document.hidden;
+        if (this.isTabVisible && this.isVisible) {
+          this.measureBounds();
         }
-      }
-    });
+      }, { passive: true });
+    }
 
-    document.addEventListener('visibilitychange', () => {
-      this.isTabVisible = !document.hidden;
-      if (this.isTabVisible && this.isVisible) {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', () => {
         this.measureBounds();
-      }
-    }, { passive: true });
+      }, { passive: true });
+    }
+  }
 
-    window.addEventListener('resize', () => {
-      this.measureBounds();
-    }, { passive: true });
+  public isFlipped(card: PendulumCard): boolean {
+    return card.cardEl.getAttribute('aria-pressed') === 'true';
   }
 
   public toggleFlip(card: PendulumCard): void {
-    this.setFlip(card, !card.isFlipped);
+    const nextFlipped = !this.isFlipped(card);
+    this.setFlip(card, nextFlipped);
   }
 
   public setFlip(card: PendulumCard, flipped: boolean): void {
     card.isFlipped = flipped;
-    card.cardEl.classList.toggle('is-flipped', flipped);
+    // Single source of truth on real button / role="button": aria-pressed
+    card.cardEl.setAttribute('aria-pressed', String(flipped));
     card.cardEl.setAttribute('aria-expanded', String(flipped));
+    card.cardEl.classList.toggle('is-flipped', flipped);
 
-    const front = card.cardEl.querySelector('.project-face-front');
-    const back = card.cardEl.querySelector('.project-face-back');
+    const front = card.cardEl.querySelector('.project-face-front') as HTMLElement | null;
+    const back = card.cardEl.querySelector('.project-face-back') as HTMLElement | null;
     const link = card.cardEl.querySelector<HTMLAnchorElement>('.project-link');
 
-    if (front) front.setAttribute('aria-hidden', String(flipped));
-    if (back) back.setAttribute('aria-hidden', String(!flipped));
+    if (front) {
+      front.setAttribute('aria-hidden', String(flipped));
+      if ('inert' in front) {
+        (front as unknown as { inert: boolean }).inert = flipped;
+      }
+    }
+    if (back) {
+      back.setAttribute('aria-hidden', String(!flipped));
+      if ('inert' in back) {
+        (back as unknown as { inert: boolean }).inert = !flipped;
+      }
+    }
     if (link) {
       link.tabIndex = flipped ? 0 : -1;
     }
