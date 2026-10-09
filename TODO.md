@@ -70,4 +70,49 @@ Confirmed 6 projects from GitHub / Resume:
 | **No Dots Over Text** | Canvas is strictly behind all content | `elementFromPoint` over `h1` returns `SPAN.l` (`z-index: 1` vs `0`) | **PASS** |
 | **Console Errors & Warnings** | Zero errors and zero warnings | **0 errors, 0 warnings** across dev & preview | **PASS** |
 | **Lighthouse Audit** | Performance, Accessibility, Best Practices, SEO $\ge 90$ | **99 / 100 / 100 / 100** | **PASS** |
-| **Unit Tests** | All Vitest tests passing | **47 / 47 passing** (Vitest) | **PASS** |
+| **Unit Tests** | All Vitest tests passing | **64 / 64 passing** (Vitest) | **PASS** |
+
+## 9. Current Upgrade Track: Phase 1 (Skills as a Living Ecosystem)
+- [x] **Creature Ecosystem Implementation**: Created `src/physics/skills-ecosystem.ts` converting all 9 skills ("Python", "TypeScript", "React", "Next.js", "AI agents", "LLM orchestration", "local-first systems", "full-stack engineering", "open source") into living ink creatures.
+- [x] **Wobbly Ink Style & Eyes**: Sinusoidal polar radius wobbling matching existing creatures, two eyes tracking heading angle `a`.
+- [x] **Handwritten Skill Labels**: Drawn dynamically in custom font (`Hand`, `Fallback`, cursive) beside each creature with screen-edge collision avoidance.
+- [x] **Wandering & Text Avoidance**: Creatures wander with soft boundaries at canvas edges and gentle repulsive avoidance from `h2` ("things i do") and `.row` ("oh, you are an engineer? me too.").
+- [x] **Pen Reactivity**: Curious toward resting pen (`sp < 1.5`, `d < 340`), flee fast pen (`sp > 9`, `d < 220`).
+- [x] **Spring Dragging & Tail**: Spring drag ($stiffness = 0.12, damping = 0.8$), stretched lag tail with ink teardrop. Retains momentum on release.
+- [x] **Hand-Drawn Ink Linking**: Dropping two creatures within 120px connects them with a hand-drawn wobbly ink spring line. Fades after 8s or breaks if pulled past 220px. Capped at 6 simultaneous links.
+- [x] **Touch & Scroll Safety**: Passive listeners. `touch-action: pan-y` on container and canvas, pointer capture only initiated if a creature's 48px hit area ($\ge 44$px) is hit. Vertical scrolling is never blocked.
+- [x] **Reduced-Motion & Failure Fallback**: Plain handwritten text fallback preserved in DOM; canvas is hidden and fallback is visible under `prefers-reduced-motion` or canvas initialization failure.
+- [x] **Performance & Pausing**: `IntersectionObserver` pauses simulation when section is off screen; tab visibility pauses when hidden. Zero idle CPU off-screen.
+- [x] **Unit Tests**: 11 dedicated tests in `src/physics/skills-ecosystem.test.ts` (all 58/58 test suite passing).
+
+## 10. Current Upgrade Track: Phase 2 (Projects as Hanging Sketchbook Pages)
+- [x] **Confirmed 6 Repositories**: `portfolio01`, `MEMORA`, `college-practical-codes`, `droidbridge`, `trackly`, `ghumo-ai`.
+- [x] **Hanging Pushpin & String**: Hand-drawn SVG pushpin at top-center with hanging string. Cards swing from top origin (`transform-origin: 50% 0px`) with initial resting tilt ($\sim \pm 2^\circ$).
+- [x] **Pendulum Physics (`src/physics/projects-pendulum.ts`)**: Rotation $r$, angular velocity $vr$, spring $0.05$, damping $0.96$. Brushing card with pointer/finger applies angular impulse based on touch side and speed.
+- [x] **Sleep When Settled**: Settle threshold ($|r - restR| < 0.0008$, $|vr| < 0.0003$). Clears `will-change` to `auto` when asleep to eliminate rendering overhead.
+- [x] **3D Card Flip**: 500ms CSS 3D preserve-3d transform. Front face displays sketch number, language, title, and flip prompt. Back face displays title, GitHub description, language, and accessible external repository link with `rel="noopener noreferrer"`.
+- [x] **Keyboard & Accessibility**: `role="button"`, `aria-expanded` toggle, Enter/Space flips card, Escape flips card back. Back face link accessible via tab navigation when card is flipped.
+- [x] **Responsive Grid**: 3 columns desktop, 2 columns tablets, 1 column phones with cards capped at 85% width.
+- [x] **Reduced Motion**: Disables pendulum rotation and flip transition under `prefers-reduced-motion: reduce`.
+- [x] **Zero CLS & Pre-Render**: Semantic markup pre-rendered in `index.html` with client-side hydration fallback.
+- [x] **Unit Tests**: 6 dedicated vitest tests in `src/physics/projects-pendulum.test.ts` (all 64/64 test suite passing).
+
+## 11. Current Upgrade Track: Phase 3 (Timeline That Writes Itself)
+- [x] **Exact Content Preserved**: Experience (BISAG-N), Education (Marwadi University, Class 12, Class 10), and Certifications (all 6) kept in exact order and wording.
+- [x] **Thin Hand-Drawn SVG Path**: Wobbly organic SVG path generated down the left side with connecting nodes at each group heading.
+- [x] **Self-Drawing on Scroll (`src/physics/timeline-writer.ts`)**: `stroke-dashoffset` tied to scroll progress. Loop runs using `requestAnimationFrame` only while `#sec-work` is visible (via `IntersectionObserver`).
+- [x] **Handwriting Fade ("Written In")**: Entries fade in sequentially as they cross the middle of the viewport (`viewportHeight * 0.58`) with a staggered handwriting fade (stagger delays capped $\le 800$ms total).
+- [x] **Ink Blots on Press-and-Hold / Tap**: Pressing and holding (400ms) or tapping an entry spawns 2-3 ink drops spreading around the entry (reusing `spawnBlot` from `src/physics/ink.ts`, 6s fade), without delaying scroll or blocking links.
+- [x] **Accessibility & SEO**: Real text remains in DOM from the start.
+- [x] **Reduced Motion**: Full path drawn instantly (`stroke-dashoffset: 0 !important;`) and all entries rendered with opacity 1 and zero delay under `prefers-reduced-motion: reduce`.
+- [x] **Unit Tests**: 3 dedicated tests in `src/physics/timeline-writer.test.ts` (all 67/67 test suite passing).
+
+## 12. Current Upgrade Track: Phase 4 (Contact as a Paper Plane)
+- [x] **Handwritten Note in `#sec-hello`**: Replaced plain email link with a handwritten note container with organic borders (`border-radius: 4px 255px 6px 225px / 225px 5px 245px 8px`), preserving existing text and `mailto:mp498343@gmail.com`.
+- [x] **Paper Plane Fold (700 ms)**: Clicking "send" triggers a 3D fold transformation scaling and angling the note into a paper plane over 700 ms.
+- [x] **Curved Flight Path & Ink Trail (800 ms)**: Paper plane SVG flies off-screen along a curved aerodynamic trajectory over 800 ms, leaving behind a faint dashed ink trail (`#paper-plane-trail`).
+- [x] **Reliability & 1.5s Safety Timeout**: Guaranteed 1500 ms safety timeout (`MAX_MAILTO_TIMEOUT_MS = 1500`). Mailto is never delayed longer than 1.5s under any circumstance.
+- [x] **Reduced-Motion Immediate Fallback**: Under `prefers-reduced-motion: reduce`, skips all transforms and animations, immediately launching `mailto:mp498343@gmail.com`.
+- [x] **"Write Again" Reset Button**: Displays a visible "write again" button when the flight finishes, smoothly restoring the note and focusing back to "send".
+- [x] **Touch Target & Keyboard Compliance**: All buttons and external links (GitHub, LinkedIn, Download Resume) are keyboard navigable (`Enter`/`Space`), have visible `:focus-visible` outlines, and meet the $\ge 44$px touch target requirement.
+- [x] **Unit Tests**: 6 dedicated tests in `src/physics/contact-plane.test.ts` (all 73/73 test suite passing).

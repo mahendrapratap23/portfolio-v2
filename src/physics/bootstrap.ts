@@ -19,9 +19,12 @@ import {
   readPortraitColors,
 } from './portrait.js';
 import { sheet } from './sheet.js';
+import { skillsEcosystem } from './skills-ecosystem.js';
+import { projectsPendulumManager } from './projects-pendulum.js';
+import { timelineWriter } from './timeline-writer.js';
 
 // Suppress unused-locals for re-exports used indirectly
-void segs; void drips; void blots; void letters; void cells; void sheet;
+void segs; void drips; void blots; void letters; void cells; void sheet; void skillsEcosystem; void projectsPendulumManager; void timelineWriter;
 
 // ── Canvas setup ───────────────────────────────────────────────────
 
@@ -54,10 +57,15 @@ function readColors(): void {
   PAP = s.getPropertyValue('--paper').trim() || '#ffffff';
   sheet.readStyles();
   readPortraitColors();
+  skillsEcosystem.readStyles();
 }
 
 sizeCanvas();
 sheet.init('sheet-cv');
+skillsEcosystem.isDrivenExternally = true;
+skillsEcosystem.init('skills-ecosystem-container', 'skills-ecosystem-canvas');
+projectsPendulumManager.init('project-grid');
+timelineWriter.init('sec-work');
 readColors();
 
 // ── Pen state ──────────────────────────────────────────────────────
@@ -168,12 +176,15 @@ function handleResize(): void {
       lastWidth = curW;
       sizeCanvas();
       sheet.allocateGrid(curW, innerHeight);
+      skillsEcosystem.resize();
       measureLetters();
       dispatchEvent(new CustomEvent('widthresize', { detail: curW }));
     } else {
       sizeCanvasHeightOnly();
       sheet.resizeHeightOnly(innerHeight);
+      skillsEcosystem.resize();
     }
+    timelineWriter.setupPath();
   }, 200);
 }
 
@@ -215,6 +226,7 @@ registerDotReducer(reducePortraitQuality);
 
 document.fonts.ready.then(() => {
   measureLetters();
+  skillsEcosystem.resize();
   lettersReady = true;
 });
 
@@ -300,6 +312,9 @@ function draw(now: number): void {
   drawCreatures(c, INK);
   drawPortrait();
   updateEyes();
+  if (skillsEcosystem.isVisible) {
+    skillsEcosystem.draw(now);
+  }
 }
 
 // ── Fixed-timestep loop & Pausing ──────────────────────────────────
@@ -328,6 +343,12 @@ function loop(t: number): void {
     stepCreatures(pen.x, pen.y, pen.sp, pen.seen, W, H);
     stepPortraitPhysics(pen, isCoarse, effectiveGx, effectiveGy, tiltActive);
     sheet.stepPhysics(pen, effectiveGx, effectiveGy, tiltActive);
+    if (skillsEcosystem.isVisible) {
+      skillsEcosystem.stepPhysics(pen.x, pen.y, pen.sp, pen.seen, t);
+    }
+    if (projectsPendulumManager.isVisible) {
+      projectsPendulumManager.stepPhysics(pen.x, pen.y, pen.sp);
+    }
     if (lettersReady) {
       stepLetters(
         pen,

@@ -13,41 +13,65 @@ import projects from './data/projects.json';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (RM) document.body.classList.add('rm');
 
+import { projectsPendulumManager } from './physics/projects-pendulum';
+import { contactPlaneManager } from './physics/contact-plane';
+
 // ── Project grid ──────────────────────────────────────────────────
 const grid = document.getElementById('project-grid');
 if (grid && grid.children.length === 0) {
-  for (const proj of projects) {
-    const card = document.createElement('article');
-    card.className = 'project-card';
+  projects.forEach((proj, index) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'project-hanging-wrapper';
+    wrapper.dataset.repo = proj.name;
 
-    const name = document.createElement('h3');
-    name.className = 'project-name';
-    name.textContent = proj.name;
-
-    const desc = document.createElement('p');
-    desc.className = 'project-desc';
-    desc.textContent = proj.description;
-
-    const footer = document.createElement('div');
-    footer.className = 'project-footer';
-
-    const lang = document.createElement('span');
-    lang.className = 'project-lang';
-    lang.textContent = proj.language;
-
-    const link = document.createElement('a');
-    link.className = 'project-link';
-    link.href = proj.url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = 'view';
-    link.setAttribute('aria-label', `View ${proj.name} on GitHub (opens in new tab)`);
-
-    footer.append(lang, link);
-    card.append(name, desc, footer);
-    grid.append(card);
-  }
+    wrapper.innerHTML = `
+      <div class="project-pin-container" aria-hidden="true">
+        <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+          <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+          <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+          <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+          <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+          <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+        </svg>
+      </div>
+      <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="${proj.name} project card. Tap or press Enter to flip for details." data-repo="${proj.name}">
+        <div class="project-card-inner">
+          <div class="project-face project-face-front">
+            <div class="card-top-row">
+              <span class="card-sketch-num">№ 0${index + 1}</span>
+              <span class="project-lang">${proj.language}</span>
+            </div>
+            <h3 class="project-name">${proj.name}</h3>
+            <div class="card-flip-prompt" aria-hidden="true">
+              <span class="flip-icon">↻</span>
+              <span>tap or Enter to inspect</span>
+            </div>
+          </div>
+          <div class="project-face project-face-back" aria-hidden="true">
+            <div class="card-top-row">
+              <h3 class="project-name">${proj.name}</h3>
+            </div>
+            <p class="project-desc">${proj.description}</p>
+            <div class="project-footer">
+              <span class="project-lang">${proj.language}</span>
+              <a class="project-link" href="${proj.url}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View ${proj.name} on GitHub (opens in new tab)">
+                <span>view repo</span>
+                <span class="link-arrow" aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+    grid.append(wrapper);
+  });
 }
+
+// Initialize pendulum card interactions (flip, keyboard, pendulum)
+projectsPendulumManager.init('project-grid');
+
+// Initialize paper plane fold and flight interaction
+contactPlaneManager.init('contact-note');
 
 // ── Marker highlight ──────────────────────────────────────────────
 // Walk text nodes in .mk elements and wrap each word in a <span class="m">
@@ -177,4 +201,8 @@ if (!RM) {
   import('./physics/bootstrap').catch(() => {
     // Static layout still works gracefully if physics fails
   });
+} else {
+  import('./physics/timeline-writer').then(({ timelineWriter }) => {
+    timelineWriter.init('sec-work');
+  }).catch(() => {});
 }

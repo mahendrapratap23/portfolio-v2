@@ -68,11 +68,16 @@
   <!-- ─── THINGS I DO ──────────────────────────────────────── -->
   <section id="sec-skills">
     <h2 class="phys" aria-label="things i do">things i do</h2>
-    <p class="big phys"
-      aria-label="Python, TypeScript, React, Next.js, AI agents, LLM orchestration, local-first systems, full-stack engineering, open source.">
-      Python, TypeScript, React, Next.js, AI agents, LLM orchestration,
-      local-first systems, full-stack engineering, open source.
-    </p>
+    <div class="skills-ecosystem-container" id="skills-ecosystem-container">
+      <canvas id="skills-ecosystem-canvas" class="skills-ecosystem-canvas" aria-label="Interactive skills ecosystem of ink creatures. Drag to move, drop together to link." role="img" tabindex="-1"></canvas>
+      <div class="skills-fallback" id="skills-fallback">
+        <p class="big"
+          aria-label="Python, TypeScript, React, Next.js, AI agents, LLM orchestration, local-first systems, full-stack engineering, open source.">
+          Python, TypeScript, React, Next.js, AI agents, LLM orchestration,
+          local-first systems, full-stack engineering, open source.
+        </p>
+      </div>
+    </div>
     <div class="row">
       <!-- Hand-drawn doodle face, eyes follow pen -->
       <svg class="face" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
@@ -94,43 +99,53 @@
   <section id="sec-work">
     <h2 class="phys" aria-label="work">work</h2>
 
-    <div class="work-group">
-      <h3 class="work-label">experience</h3>
-      <div class="work-entry mk">
-        <span class="work-title">Industrial Technical Visit</span>
-        <span class="work-org">Bhaskaracharya National Institute for Space Applications and Geo-informatics (BISAG-N) · Gandhinagar, Gujarat</span>
-        <span class="work-detail">Space Technology, Geographic Information Systems (GIS), Remote Sensing and Geospatial AI. Explored satellite data pipelines and machine learning models for spatial analysis.</span>
-      </div>
-    </div>
+    <div class="timeline-wrapper" id="timeline-wrapper">
+      <svg class="timeline-svg" id="timeline-svg" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+        <path id="timeline-path" class="timeline-path" d="" />
+      </svg>
 
-    <div class="work-group">
-      <h3 class="work-label">education</h3>
-      <div class="work-entry mk">
-        <span class="work-title">Marwadi University</span>
-        <span class="work-detail">B.Tech in Computer Science and Engineering, AI and ML</span>
-        <span class="work-detail">two thousand twenty four to two thousand twenty eight · CGPA eight point four
-          two</span>
-      </div>
-      <div class="work-entry mk">
-        <span class="work-title">Class twelve</span>
-        <span class="work-detail">UP Board, Science and Mathematics · eighty-eight percent</span>
-      </div>
-      <div class="work-entry mk">
-        <span class="work-title">Class ten</span>
-        <span class="work-detail">UP Board · eighty-nine percent</span>
-      </div>
-    </div>
+      <div class="timeline-content">
+        <div class="work-group">
+          <h3 class="work-label">experience</h3>
+          <div class="work-entry mk timeline-item">
+            <span class="work-title">Industrial Technical Visit</span>
+            <span class="work-org">Bhaskaracharya National Institute for Space Applications and Geo-informatics (BISAG-N) · Gandhinagar, Gujarat</span>
+            <span class="work-detail">Space Technology, Geographic Information Systems (GIS), Remote Sensing and Geospatial AI. Explored satellite data pipelines and machine learning models for spatial analysis.</span>
+          </div>
+        </div>
 
-    <div class="work-group">
-      <h3 class="work-label">certifications</h3>
-      <ul class="cert-list mk">
-        <li>Oracle Cloud Infrastructure AI Foundations</li>
-        <li>Cisco CCNA Cloud Networking</li>
-        <li>IBM Artificial Intelligence Fundamentals</li>
-        <li>Problem Solving Using Computational Thinking, University of Michigan</li>
-        <li>Data Analyst and Generative AI Credentials, LinkedIn Learning</li>
-        <li>Digital Electronics and Hardware Foundations, NPTEL</li>
-      </ul>
+        <div class="work-group">
+          <h3 class="work-label">education</h3>
+          <div class="work-entry mk timeline-item">
+            <span class="work-title">Marwadi University</span>
+            <span class="work-detail">B.Tech in Computer Science and Engineering, AI and ML</span>
+            <span class="work-detail">two thousand twenty four to two thousand twenty eight · CGPA eight point four
+              two</span>
+          </div>
+          <div class="work-entry mk timeline-item">
+            <span class="work-title">Class twelve</span>
+            <span class="work-detail">UP Board, Science and Mathematics · eighty-eight percent</span>
+          </div>
+          <div class="work-entry mk timeline-item">
+            <span class="work-title">Class ten</span>
+            <span class="work-detail">UP Board · eighty-nine percent</span>
+          </div>
+        </div>
+
+        <div class="work-group">
+          <h3 class="work-label">certifications</h3>
+          <div class="timeline-item">
+            <ul class="cert-list mk">
+              <li>Oracle Cloud Infrastructure AI Foundations</li>
+              <li>Cisco CCNA Cloud Networking</li>
+              <li>IBM Artificial Intelligence Fundamentals</li>
+              <li>Problem Solving Using Computational Thinking, University of Michigan</li>
+              <li>Data Analyst and Generative AI Credentials, LinkedIn Learning</li>
+              <li>Digital Electronics and Hardware Foundations, NPTEL</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -138,63 +153,297 @@
   <section id="sec-projects">
     <h2 class="phys" aria-label="projects">projects</h2>
     <div class="project-grid" id="project-grid">
-      <article class="project-card">
-        <h3 class="project-name">MEMORA</h3>
-        <p class="project-desc">Open-source autonomous AI agent engine built from scratch. Six-layer architecture, provider-agnostic LLM interface.</p>
-        <div class="project-footer">
-          <span class="project-lang">Python</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/MEMORA" target="_blank" rel="noopener noreferrer" aria-label="View MEMORA on GitHub (opens in new tab)">view</a>
+      <!-- 1. portfolio01 -->
+      <div class="project-hanging-wrapper" data-repo="portfolio01">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
-      <article class="project-card">
-        <h3 class="project-name">ghumo-ai</h3>
-        <p class="project-desc">AI-powered travel planner with interactive maps, budget charts, and itinerary export.</p>
-        <div class="project-footer">
-          <span class="project-lang">TypeScript</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/ghumo-ai" target="_blank" rel="noopener noreferrer" aria-label="View ghumo-ai on GitHub (opens in new tab)">view</a>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="portfolio01 project card. Tap or press Enter to flip for details." data-repo="portfolio01">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 01</span>
+                <span class="project-lang">CSS</span>
+              </div>
+              <h3 class="project-name">portfolio01</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">portfolio01</h3>
+              </div>
+              <p class="project-desc">MINIMAL UI PORtFOLIO</p>
+              <div class="project-footer">
+                <span class="project-lang">CSS</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/portfolio01" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View portfolio01 on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 2. MEMORA -->
+      <div class="project-hanging-wrapper" data-repo="MEMORA">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
-      <article class="project-card">
-        <h3 class="project-name">trackly</h3>
-        <p class="project-desc">Privacy-first local habit and metric analytics suite with offline-first storage and rich chart dashboards.</p>
-        <div class="project-footer">
-          <span class="project-lang">TypeScript</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/trackly" target="_blank" rel="noopener noreferrer" aria-label="View trackly on GitHub (opens in new tab)">view</a>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="MEMORA project card. Tap or press Enter to flip for details." data-repo="MEMORA">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 02</span>
+                <span class="project-lang">Python</span>
+              </div>
+              <h3 class="project-name">MEMORA</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">MEMORA</h3>
+              </div>
+              <p class="project-desc">MEMORA is an open-source personal AI assistant and autonomous agent engineered from scratch</p>
+              <div class="project-footer">
+                <span class="project-lang">Python</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/MEMORA" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View MEMORA on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 3. college-practical-codes -->
+      <div class="project-hanging-wrapper" data-repo="college-practical-codes">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
-      <article class="project-card">
-        <h3 class="project-name">droidbridge</h3>
-        <p class="project-desc">Universal Android-to-macOS file transfer over USB.</p>
-        <div class="project-footer">
-          <span class="project-lang">Rust</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/droidbridge" target="_blank" rel="noopener noreferrer" aria-label="View droidbridge on GitHub (opens in new tab)">view</a>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="college-practical-codes project card. Tap or press Enter to flip for details." data-repo="college-practical-codes">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 03</span>
+                <span class="project-lang">Jupyter Notebook</span>
+              </div>
+              <h3 class="project-name">college-practical-codes</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">college-practical-codes</h3>
+              </div>
+              <p class="project-desc">machine learning ,DAA ,AI codes practicals</p>
+              <div class="project-footer">
+                <span class="project-lang">Jupyter Notebook</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/college-practical-codes" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View college-practical-codes on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 4. droidbridge -->
+      <div class="project-hanging-wrapper" data-repo="droidbridge">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
-      <article class="project-card">
-        <h3 class="project-name">portfolio</h3>
-        <p class="project-desc">Minimal UI portfolio site with clean typography and intentional whitespace.</p>
-        <div class="project-footer">
-          <span class="project-lang">CSS</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/portfolio01" target="_blank" rel="noopener noreferrer" aria-label="View portfolio on GitHub (opens in new tab)">view</a>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="droidbridge project card. Tap or press Enter to flip for details." data-repo="droidbridge">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 04</span>
+                <span class="project-lang">Rust</span>
+              </div>
+              <h3 class="project-name">droidbridge</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">droidbridge</h3>
+              </div>
+              <p class="project-desc">Universal Android-to-macOS file transfer over USB</p>
+              <div class="project-footer">
+                <span class="project-lang">Rust</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/droidbridge" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View droidbridge on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 5. trackly -->
+      <div class="project-hanging-wrapper" data-repo="trackly">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
-      <article class="project-card">
-        <h3 class="project-name">college-practical-codes</h3>
-        <p class="project-desc">Machine learning, DAA and AI practical code notebooks from coursework.</p>
-        <div class="project-footer">
-          <span class="project-lang">Jupyter Notebook</span>
-          <a class="project-link" href="https://github.com/mahendrapratap23/college-practical-codes" target="_blank" rel="noopener noreferrer" aria-label="View college-practical-codes on GitHub (opens in new tab)">view</a>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="trackly project card. Tap or press Enter to flip for details." data-repo="trackly">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 05</span>
+                <span class="project-lang">TypeScript</span>
+              </div>
+              <h3 class="project-name">trackly</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">trackly</h3>
+              </div>
+              <p class="project-desc">an idea that track anything what you want ,graph visuals</p>
+              <div class="project-footer">
+                <span class="project-lang">TypeScript</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/trackly" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View trackly on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 6. ghumo-ai -->
+      <div class="project-hanging-wrapper" data-repo="ghumo-ai">
+        <div class="project-pin-container" aria-hidden="true">
+          <svg class="project-pin-svg" viewBox="0 0 32 40" width="32" height="40">
+            <ellipse cx="18" cy="12" rx="6" ry="4" fill="color-mix(in srgb, var(--ink) 12%, transparent)" />
+            <ellipse cx="16" cy="10" rx="6.5" ry="5" fill="var(--blue)" stroke="var(--ink)" stroke-width="1.4" />
+            <circle cx="15" cy="9" r="2" fill="var(--paper)" opacity="0.6" />
+            <line x1="16" y1="15" x2="16" y2="22" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" />
+            <path d="M16 20 Q15 29 16 38" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="2.5 1.5" fill="none" opacity="0.85" />
+          </svg>
         </div>
-      </article>
+        <article class="project-card" role="button" tabindex="0" aria-expanded="false" aria-label="ghumo-ai project card. Tap or press Enter to flip for details." data-repo="ghumo-ai">
+          <div class="project-card-inner">
+            <div class="project-face project-face-front">
+              <div class="card-top-row">
+                <span class="card-sketch-num">№ 06</span>
+                <span class="project-lang">TypeScript</span>
+              </div>
+              <h3 class="project-name">ghumo-ai</h3>
+              <div class="card-flip-prompt" aria-hidden="true">
+                <span class="flip-icon">↻</span>
+                <span>tap or Enter to inspect</span>
+              </div>
+            </div>
+            <div class="project-face project-face-back" aria-hidden="true">
+              <div class="card-top-row">
+                <h3 class="project-name">ghumo-ai</h3>
+              </div>
+              <p class="project-desc">travel tracker ,maps ,checklist,budgets,most everything for travel planning</p>
+              <div class="project-footer">
+                <span class="project-lang">TypeScript</span>
+                <a class="project-link" href="https://github.com/mahendrapratap23/ghumo-ai" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="View ghumo-ai on GitHub (opens in new tab)">
+                  <span>view repo</span>
+                  <span class="link-arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 
   <!-- ─── SAY HELLO ─────────────────────────────────────────── -->
   <section id="sec-hello">
     <h2 class="phys" aria-label="say hello">say hello</h2>
-    <p>Write to me. Leave a blot on this page and I will find it.</p>
+
+    <div class="contact-note-container" id="contact-note-container">
+      <!-- The handwritten note -->
+      <div class="contact-note" id="contact-note">
+        <p class="note-text">
+          Write to me. Leave a blot on this page and I will find it.
+        </p>
+        <p class="note-email">
+          <span class="note-label">email:</span>
+          <a href="mailto:mp498343@gmail.com" class="note-mail-address" aria-label="email address mp498343@gmail.com">mp498343@gmail.com</a>
+        </p>
+        <div class="note-actions">
+          <button id="btn-send-plane" class="btn-send-plane" type="button" aria-label="Send letter — fold into paper plane and open email">
+            <span>send</span>
+            <span class="plane-icon" aria-hidden="true">✈</span>
+          </button>
+          <button id="btn-reset-plane" class="btn-reset-plane" type="button" style="display: none;" aria-label="Write again — unfold note">
+            <span>write again</span>
+            <span class="reset-icon" aria-hidden="true">↺</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- The folded paper plane SVG (flies across screen) -->
+      <div class="paper-plane-wrapper" id="paper-plane-svg" aria-hidden="true">
+        <svg class="paper-plane-svg" viewBox="0 0 64 64" width="56" height="56">
+          <polygon points="4,28 60,6 34,60 30,36" fill="var(--paper)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" />
+          <polygon points="30,36 60,6 34,60" fill="color-mix(in srgb, var(--paper) 88%, var(--ink))" stroke="var(--ink)" stroke-width="1.6" stroke-linejoin="round" />
+          <line x1="30" y1="36" x2="60" y2="6" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" />
+          <circle cx="28" cy="30" r="1.5" fill="var(--ink)" opacity="0.6" />
+        </svg>
+      </div>
+
+      <!-- Faint ink trail for paper plane flight -->
+      <svg class="paper-plane-trail" id="paper-plane-trail" viewBox="0 0 600 300" aria-hidden="true">
+        <path class="plane-trail-path" d="M 60 180 C 140 120, 260 40, 560 -60" />
+      </svg>
+    </div>
+
     <div class="links-row">
-      <a href="mailto:mp498343@gmail.com" class="ink-link" aria-label="hey mail me — send email to Mahendra Pratap">hey mail me</a>
       <a href="https://github.com/mahendrapratap23" class="ink-link" target="_blank" rel="noopener noreferrer"
         aria-label="Mahendra Pratap on GitHub (opens in new tab)">github</a>
       <a href="https://www.linkedin.com/in/mahendra-pratap" class="ink-link" target="_blank" rel="noopener noreferrer"
